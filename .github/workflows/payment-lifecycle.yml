@@ -1,0 +1,92 @@
+name: Payment Lifecycle CI
+
+on:
+  push:
+    paths:
+      - "backend/**"
+      - "database/migrations/**"
+      - ".github/workflows/payment-lifecycle.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - "database/migrations/**"
+      - ".github/workflows/payment-lifecycle.yml"
+
+jobs:
+  payment-lifecycle:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: customs_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d customs_ci"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    defaults:
+      run:
+        working-directory: backend
+
+    env:
+      PORT: 5000
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASS: postgres
+      DB_NAME: customs_ci
+      JWT_SECRET: ci-secret
+      NODE_ENV: test
+      ADMIN_EMAIL: admin@example.com
+      ADMIN_PASSWORD: MySecret123
+      API_BASE: http://localhost:5000/api
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Start backend
+        run: |
+          nohup npm start > /tmp/backend.log 2>&1 &
+          echo $! > /tmp/backend.pid
+
+      - name: Wait for health endpoint
+        run: |
+          for i in {1..40}; do
+            if curl -fsS http://localhost:5000/ > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Backend did not start in time"
+          cat /tmp/backend.log || true
+          exit 1
+
+      - name: Seed admin
+        run: npm run seed:admin
+
+      - name: Apply payment hardening migration
+        run: npm run db:migrate:payment-hardening
+
+      - name: Run payment lifecycle test
+        run: npm run test:payment-lifecycle
+
+      - name: Dump backend logs on failure
+        if: failure()
+        run: cat /tmp/backend.log || true
+

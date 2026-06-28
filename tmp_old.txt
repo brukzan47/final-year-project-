@@ -1,0 +1,45 @@
+import React, { useState } from "react";
+import FormField from "../components/FormField.jsx";
+
+export default function Notifications() {
+  const [f, set] = useState({ title: "", message: "", roles: { Admin: true, "Customs Officer": true, Importer: false } });
+  const [items, setItems] = useState([]);
+  const on = (e) => set({ ...f, [e.target.name]: e.target.value });
+  const toggle = (role) => set({ ...f, roles: { ...f.roles, [role]: !f.roles[role] } });
+  const submit = (e) => {
+    e.preventDefault();
+    const payload = { title: f.title, message: f.message, roles: Object.keys(f.roles).filter((r) => f.roles[r]) };
+    setItems([{ ...payload, id: Date.now() }, ...items]);
+    set({ title: "", message: "", roles: f.roles });
+  };
+
+  return (
+    <div>
+      <h2>Notifications</h2>
+      <form onSubmit={submit} style={{ display: "grid", gap: 10, maxWidth: 700, marginBottom: 16 }}>
+        <FormField label="Title" name="title" value={f.title} onChange={on} placeholder="System maintenance" />
+        <label style={{ display: "grid", gap: 6 }}>
+          <span style={{ fontSize: 13 }}>Message</span>
+          <textarea name="message" value={f.message} onChange={on} placeholder="We will perform maintenance on Saturday 10:00 AM" style={{ padding: 10, border: "1px solid #ccc", borderRadius: 6 }} />
+        </label>
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          {Object.keys(f.roles).map((role) => (
+            <label key={role} style={{ display: "flex", gap: 6, alignItems: "center" }}>
+              <input type="checkbox" checked={f.roles[role]} onChange={() => toggle(role)} />
+              <span>{role}</span>
+            </label>
+          ))}
+        </div>
+        <button type="submit" style={{ width: 160 }}>Send</button>
+      </form>
+
+      <h3>Recent</h3>
+      <ul style={{ paddingLeft: 16 }}>
+        {items.map((n) => (
+          <li key={n.id}><strong>{n.title}</strong> — {n.message} <em>({n.roles.join(", ")})</em></li>
+        ))}
+        {items.length === 0 && <li>No notifications yet.</li>}
+      </ul>
+    </div>
+  );
+}

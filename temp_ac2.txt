@@ -1,0 +1,104 @@
+          ), stats AS (
+            SELECT AVG(cnt) AS avg_cnt, STDDEV_POP(cnt) AS std_cnt FROM daily
+          )
+          SELECT day, cnt,
+                 (SELECT avg_cnt FROM stats) AS avg_cnt,
+                 (SELECT std_cnt FROM stats) AS std_cnt,
+                 CASE WHEN cnt < (SELECT avg_cnt - 2 * COALESCE(std_cnt,0) FROM stats) THEN TRUE ELSE FALSE END AS is_anomaly
+          FROM daily
+          ORDER BY day
+          `,
+          [start, end]
+        )
+      ).rows;
+      res.json({ days: rows });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+  // GET /api/analytics/forecast/revenue-monthly
+  async forecastRevenueMonthly(req, res) {
+    try {
+      const { start, end } = parseDateRange(req.query || {});
+      const horizon = Math.max(1, Math.min(parseInt(req.query?.horizon || '3', 10) || 3, 12));
+      const hist = (
+        await pool.query(
+          `
+          SELECT to_char(date_trunc('month', COALESCE(p.payment_date, d.declaration_date)), 'YYYY-MM') AS period,
+                 COALESCE(SUM(COALESCE(p.duty_paid,0)+COALESCE(p.vat_paid,0)+COALESCE(p.excise_paid,0)),0) AS total
+          FROM declarations d
+          LEFT JOIN payments p ON p.declaration_id = d.declaration_id AND p.payment_status = 'Verified'
+          WHERE ($1::date IS NULL OR COALESCE(p.payment_date, d.declaration_date) >= $1::date)
+            AND ($2::date IS NULL OR COALESCE(p.payment_date, d.declaration_date) <= $2::date)
+          GROUP BY 1
+          ORDER BY 1 ASC
+          `,
+          [start, end]
+        )
+      ).rows;
+      if (!hist || hist.length < 2) return res.json({ history: hist || [], forecast: [] });
+      const totals = hist.map((r) => Number(r.total) || 0);
+      const n = totals.length;
+      const xs = Array.from({ length: n }, (_, i) => i);
+      const sumX = xs.reduce((a, b) => a + b, 0);
+      const sumY = totals.reduce((a, b) => a + b, 0);
+      const sumXY = xs.reduce((a, x, i) => a + x * totals[i], 0);
+      const sumXX = xs.reduce((a, x) => a + x * x, 0);
+      const denom = n * sumXX - sumX * sumX;
+      const m = denom === 0 ? 0 : (n * sumXY - sumX * sumY) / denom;
+      const b = n === 0 ? 0 : (sumY - m * sumX) / n;
+      const lastPeriod = hist[n - 1].period; // 'YYYY-MM'
+      const [yStr, mStr] = lastPeriod.split('-');
+      let y = parseInt(yStr, 10) || 2024;
+      let mo = parseInt(mStr, 10) || 1;
+      const forecast = [];
+      for (let k = 1; k <= horizon; k++) {
+        const idx = n - 1 + k;
+        let pred = m * idx + b;
+        if (!isFinite(pred)) pred = 0;
+        mo += 1; if (mo > 12) { mo = 1; y += 1; }
+        const period = `${y}-${String(mo).padStart(2, '0')}`;
+        forecast.push({ period, pred_total: Math.max(0, Math.round(pred * 100) / 100) });
+      }
+      res.json({ history: hist, forecast });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+  // GET /api/analytics/declarations?country=&sector=&start=&end=
+  async declarationsList(req, res) {
+    try {
+      const { start, end } = parseDateRange(req.query || {});
+      const country = (req.query?.country || '').toString() || null;
+      const sector = (req.query?.sector || '').toString() || null;
+      const channel = (req.query?.channel || '').toString() || null;
+      const port = (req.query?.port || '').toString() || null;
+      const hs = (req.query?.hs || '').toString() || null;
+      const whereParts = [
+        '($1::date IS NULL OR d.declaration_date >= $1::date)',
+        '($2::date IS NULL OR d.declaration_date <= $2::date)'
+      ];
+      const params = [start, end];
+      if (country) { whereParts.push('(s.origin_country = $' + (params.push(country)) + ')'); }
+      if (sector) { whereParts.push('(i.sector_type = $' + (params.push(sector)) + ')'); }
+      if (channel) { whereParts.push('(i2.risk_channel = $' + (params.push(channel)) + ')'); }
+      if (port) { whereParts.push('(d.customs_station = $' + (params.push(port)) + ')'); }
+      if (hs) { whereParts.push('(s.hs_code = $' + (params.push(hs)) + ')'); }
+      const where = whereParts.join(' AND ');
+      const rows = (await pool.query(`
+        SELECT d.declaration_id, d.declaration_no, d.declaration_date, d.status, d.customs_station,
+               i.company_name, s.origin_country, s.cif_value_usd, i2.risk_channel
+        FROM declarations d
+        JOIN shipments s ON s.shipment_id = d.shipment_id
+        JOIN importers i ON i.importer_id = s.importer_id
+        LEFT JOIN inspections i2 ON i2.declaration_id = d.declaration_id
+        WHERE ${where}
+        ORDER BY d.declaration_date DESC
+        LIMIT 500
+      `, params)).rows;
+      res.json(rows);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+};

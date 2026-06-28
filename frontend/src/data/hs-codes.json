@@ -1,0 +1,18 @@
+[
+  { "code": "8504.40", "desc": "Static converters (adapters, chargers)" },
+  { "code": "8517.12", "desc": "Telephones for cellular networks" },
+  { "code": "8471.30", "desc": "Portable digital automatic data processing machines (laptops)" },
+  { "code": "8537.10", "desc": "Boards, panels, consoles for electric control" },
+  { "code": "9403.20", "desc": "Metal furniture" },
+  { "code": "7308.90", "desc": "Structures and parts of structures (steel)" },
+  { "code": "3004.90", "desc": "Medicaments (pharmaceuticals)" },
+  { "code": "3808.59", "desc": "Disinfectants, pesticides" },
+  { "code": "8409.91", "desc": "Parts for engines" },
+  { "code": "8708.99", "desc": "Parts and accessories of motor vehicles" },
+  { "code": "6203.42", "desc": "Men's trousers of cotton" },
+  { "code": "6307.90", "desc": "Other made up textile articles" },
+  { "code": "1006.30", "desc": "Semi-milled or wholly milled rice" },
+  { "code": "1701.99", "desc": "Cane or beet sugar" },
+  { "code": "0402.21", "desc": "Milk and cream, concentrated" }
+]
+

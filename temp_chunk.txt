@@ -1,0 +1,7 @@
+        <span style={{ marginLeft: 'auto', fontSize: 12, color: '#555' }}>Total: {total}</span>
+        {byType && (
+          <span style={{ fontSize: 12, color: '#555', display:'inline-flex', gap:8 }}>
+            <span>Dec: {byType.declaration||0}</span>
+            <span>Shp: {byType.shipment||0}</span>
+            <span>Imp: {byType.importer||0}</span>
+            <span>Doc: {byType.document||0}</span>

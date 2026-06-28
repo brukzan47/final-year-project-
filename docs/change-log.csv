@@ -1,0 +1,15 @@
+id,law,clause,change_type,effective_date,summary,system_impact,source_url,verified
+CL-0001,Institutional Restructure,2019 restructuring,Transfer of customs functions to ECC,2019-07-18,ERCA customs functions moved to Ethiopian Customs Commission (ECC),Update institution references; ownership of directives,https://www.fanag.gov.et/NG/Proclamation_1165_2019.pdf,true
+CL-0002,Customs Proclamation 859/2014,,Original enactment,2014-08-01,Primary customs law governing duties, declarations, offences; baseline for system rules,https://www.fanag.gov.et/NG/Proclamation_859_2014.pdf,true
+CL-0003,Council of Ministers Regulation No.409/2017,,Original enactment,2017-10-11,Implements Proclamation 859/2014; procedural rules for declarations and processing,https://www.fanag.gov.et/NG/Council_of_Ministers_Regulation_No_409_2017.pdf,true
+CL-0004,Proclamation No.1184/2020,,Amendment,2020-10-01,Amendments affecting customs execution post-ECC setup,https://www.fanag.gov.et/NG/Proclamation_1184_2020.pdf,true
+CL-0005,Directive No.65/2004 (AEO),,Existing directive,2004-08-30,AEO program directive for trusted traders (referenced in operations),https://www.ethiopiancustoms.gov.et/docs/Directive_No_65_2004.pdf,true
+CL-0006,Directive No.40/2002 (Customs Warehouse),,Existing directive,2002-05-15,Rules for customs warehouse operations and bonded storage,https://www.ethiopiancustoms.gov.et/docs/Directive_No_40_2002.pdf,true
+CL-0007,Directive No.13/2002 (Goods Released Under Security),,Existing directive,2002-03-10,Allows release of goods under security guarantee,https://www.ethiopiancustoms.gov.et/docs/Directive_No_13_2002.pdf,true
+CL-0008,Directive No.56/2003 (Disposal),,Existing directive,2003-11-20,Regulates disposal of unclaimed/confiscated goods,https://www.ethiopiancustoms.gov.et/docs/Directive_No_56_2003.pdf,true
+CL-0009,NBE FXD/01/2017,,Directive,2017-12-01,Foreign exchange management rules for imports and L/C/CAD/advance payments,https://nbe.gov.et/wp-content/uploads/2017/12/FXD012017.pdf,true
+CL-0010,NBE FXD/01/2019,,Directive,2019-12-01,Updated forex regime affecting import payments and bank operations,https://nbe.gov.et/wp-content/uploads/2019/12/FXD012019.pdf,true
+CL-0011,NBE FXD/01/2020,,Directive,2020-12-01,Forex control rules for import remittances and CAD utilization,https://nbe.gov.et/wp-content/uploads/2020/12/FXD012020.pdf,true
+CL-0012,NBE FXD/01/2021,,Directive,2021-12-01,Foreign exchange management policy for import payments,https://nbe.gov.et/wp-content/uploads/2021/12/FXD012021.pdf,true
+CL-0013,NBE FXD/01/2022,,Directive,2022-12-01,Foreign exchange management policy affecting imports and documentation,https://nbe.gov.et/wp-content/uploads/2022/12/FXD012022.pdf,true
+CL-0014,NBE FXD/01/2024,,Directive,2024-07-01,Primary NBE forex management directive impacting import payments, CAD, L/C, advance payments,https://nbe.gov.et/wp-content/uploads/2024/07/FXD012024-FOREIGN-EXCHANGE-1-1.pdf,true

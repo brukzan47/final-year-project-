@@ -1,0 +1,16 @@
+requirement_id,law,article_or_directive,summary,system_module,check_action,severity,evidence_required
+CL-001,Customs Proclamation 859/2014,Art. (Declaration obligations),All import/export declarations must be submitted and retained in system,Declarations,Validate declaration presence and retention,High,Declaration XML/record
+CL-002,Customs Regulation 409/2017,Clause (Procedures),Follow procedural steps for submission,Declarations,Enforce workflow and status transitions,High,Audit trail
+CL-003,Value Added Tax Proclamation No.285/2002,Art. (VAT on imports),VAT must be calculated and recorded,Payments,Calculate VAT and attach receipt,High,Tax calculation log; receipt
+CL-004,Excise Tax Proclamation No.307/2002,Art. (Excise on goods),Apply excise where applicable,Goods Item,Validate HS-based excise rates,High,Tariff rate table; payment record
+CL-005,NBE Directives,Forex Rules,Foreign exchange controls for payments,Payments,Validate payment currency and NBE rules,Medium,Payment method record; forex approval
+CL-006,AEO Directive No.65/2004,Section (AEO privileges),AEO status privileges and checks,AEO,AEO status checks on reduced inspections,Medium,AEO certificate record
+CL-007,Customs Warehouse Dir. No.40/2002,Article (Licensing),Warehouse must have valid license,Warehousing,Validate license_no and expiry,High,Warehouse license document
+CL-008,Goods Released Under Security Dir.13/2002,Procedure (Security Release),Security release conditions,Releases,Verify security deposit and release approvals,High,Security release form; deposit receipt
+CL-009,Disposal of Abandoned Goods Dir.56/2003,Procedure (Disposal),Procedures for abandoned goods,Enforcement,Track abandonment workflow and approvals,Medium,Disposition record; approvals
+CL-010,HS Tariff Classification,WTO Agreement/Local Tariff,Correct HS classification on goods,Goods Item,HS code validation and tariff lookup,High,HS lookup audit; classification rationale
+CL-011,Declaration Forms (IM4/EX1/etc),Operational Forms,Use correct form code per transaction,Declarations,Validate declaration_type vs transaction,Medium,Form code in declaration record
+CL-012,Income Tax Proclamation No.979/2016,Article (Withholding),Withholding obligations where applicable,Payments,Flag and record tax withholdings,Medium,Withholding receipt
+CL-013,Sector-specific laws (Veterinary/Food),Permits and certificates for controlled goods,Inspections,Verify required permits before clearance,High,Permit document scans
+CL-014,Forfeiture & Confiscation (Proclamation),Article (Enforcement),Record enforcement actions,Enforcement,Log forfeiture/confiscation actions,High,Forfeiture case file
+CL-015,Customs Transit Directive,Procedure (Transit),Transit seals and guarantees required,Transit,Validate transit guarantee and seals,High,Transit guarantee document

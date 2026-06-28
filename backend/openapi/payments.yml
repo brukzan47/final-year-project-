@@ -1,0 +1,144 @@
+openapi: 3.0.3
+info:
+  title: Ethiopian Customs – Finance & Payments API
+  version: 1.0.0
+servers:
+  - url: https://api.customs.gov.et
+paths:
+  /api/payments:
+    post:
+      summary: Create Payment Order (Pending)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required: [declaration_id, amount_due]
+              type: object
+              properties:
+                declaration_id: { type: string }
+                amount_due: { type: number }
+                currency: { type: string, default: ETB }
+                bank_name: { type: string, nullable: true }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Payment' }
+    get:
+      summary: List payments (dashboard)
+      parameters:
+        - in: query
+          name: status
+          schema: { $ref: '#/components/schemas/PaymentStatus' }
+        - in: query
+          name: bank_name
+          schema: { type: string }
+        - in: query
+          name: from
+          schema: { type: string, format: date-time }
+        - in: query
+          name: to
+          schema: { type: string, format: date-time }
+      responses:
+        '200':
+          description: OK
+  /api/payments/{id}:
+    get:
+      summary: Get payment by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  /api/payments/{id}/verify:
+    put:
+      summary: Finance verification (Pending -> Verified)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required: [receipt_no]
+              type: object
+              properties:
+                receipt_no: { type: string }
+                bank_name: { type: string, nullable: true }
+                paid_amount: { type: number, nullable: true }
+                currency: { type: string, nullable: true }
+                paid_at: { type: string, format: date-time, nullable: true }
+      responses:
+        '200': { description: Verified }
+  /api/payments/{id}/approve:
+    put:
+      summary: Finance approval (Verified -> Paid)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Paid }
+  /api/payments/{id}/reverify:
+    post:
+      summary: Reset failed payment to Pending
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Reset to Pending }
+  /api/bank/webhook:
+    post:
+      summary: Bank → Customs payment callback (idempotent)
+      security: [{ HmacSig: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/BankWebhookEvent' }
+      responses:
+        '202': { description: Accepted }
+components:
+  securitySchemes:
+    HmacSig:
+      type: apiKey
+      in: header
+      name: X-Signature
+  schemas:
+    PaymentStatus:
+      type: string
+      enum: [Pending, Failed, Verified, Paid]
+    Payment:
+      type: object
+      properties:
+        payment_id: { type: string }
+        declaration_id: { type: string }
+        payment_order_no: { type: string }
+        total_payable: { type: number }
+        currency: { type: string }
+        payment_status: { $ref: '#/components/schemas/PaymentStatus' }
+        receipt_no: { type: string }
+        bank_name: { type: string }
+        transaction_id: { type: string }
+    BankWebhookEvent:
+      type: object
+      required: [payment_order_no, transaction_id, receipt_no, paid_amount, currency, bank_name, paid_at]
+      properties:
+        payment_order_no: { type: string }
+        transaction_id: { type: string }
+        receipt_no: { type: string }
+        paid_amount: { type: number }
+        currency: { type: string }
+        bank_name: { type: string }
+        paid_at: { type: string, format: date-time }

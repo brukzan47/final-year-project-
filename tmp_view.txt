@@ -1,0 +1,32 @@
+import React from "react";
+import { useToast } from "../context/ToastContext.jsx";
+
+export default function Toaster() {
+  const toast = useToast();
+  const items = toast?._list || [];
+  const styles = {
+    pos: { position: 'fixed', top: 12, right: 12, display: 'grid', gap: 8, zIndex: 9999 },
+    card: (type) => {
+      const map = {
+        success: { bg: '#e8f5e9', bd: '#c8e6c9', color: '#1b5e20' },
+        error: { bg: '#ffebee', bd: '#ffcdd2', color: '#b00020' },
+        info: { bg: '#e3f2fd', bd: '#bbdefb', color: '#0d47a1' },
+        warn: { bg: '#fff8e1', bd: '#ffecb3', color: '#6a4f00' },
+      };
+      const m = map[type] || map.info;
+      return { background: m.bg, border: `1px solid ${m.bd}`, color: m.color, padding: '10px 12px', borderRadius: 8, minWidth: 260, boxShadow: '0 2px 8px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'start', gap: 10 };
+    },
+    close: { marginLeft: 'auto', background: 'transparent', border: 'none', color: '#555', cursor: 'pointer' },
+  };
+  return (
+    <div style={styles.pos}>
+      {items.map((t) => (
+        <div key={t.id} style={styles.card(t.type)}>
+          <div style={{ fontSize: 14 }}>{t.msg}</div>
+          <button onClick={() => toast.remove(t.id)} style={styles.close} aria-label="Dismiss">×</button>
+        </div>
+      ))}
+    </div>
+  );
+}
+

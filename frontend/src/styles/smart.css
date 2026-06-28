@@ -1,0 +1,45 @@
+﻿/* Smart UI supplemental styles */
+
+/* Preserve line breaks for pre/code blocks by default */
+pre,
+code {
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Utility: alternate pre-wrap class for semantic usage */
+.smart-pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* JSON tree readability tweaks */
+.prewrap details {
+  margin-left: 6px;
+}
+.prewrap summary {
+  cursor: pointer;
+  list-style: disclosure-closed; /* supported in modern browsers */
+}
+.prewrap details[open] > summary {
+  list-style: disclosure-open;
+}
+
+/* Smart tables: ensure vertical alignment for multi-line cells */
+.smart-table td,
+.smart-table th {
+  vertical-align: top;
+}
+
+/* Utility: monospace font */
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* Utility: prevent wrapping */
+.nowrap {
+  white-space: nowrap;
+}
+

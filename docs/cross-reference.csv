@@ -1,0 +1,16 @@
+law,directive_or_article,procedure,system_module,system_field,notes,priority
+Customs Proclamation 859/2014,Declaration obligations,Submit and retain declaration,Declarations,declaration_id;declaration_date,Legal requirement for declaration filing,High
+Customs Regulation 409/2017,Procedural rules,Workflow statuses & processing,Declarations,status;audit_trail,Enforces processing steps and retention,High
+Value Added Tax Proclamation No.285/2002,VAT on imports,Compute and record VAT,Payments,vat_amount;tax_base,Used for tax liability and receipts,High
+Excise Tax Proclamation No.307/2002,Excise on goods,Apply excise by HS code,Goods Item,hs_code;excise_rate,Rate lookup from tariff tables,High
+NBE Forex Directives,Forex controls,Validate forex approvals for payments,Payments,currency;forex_approval_ref,Requires NBE approval metadata,Medium
+Customs Warehouse Dir. No.40/2002,Licensing,Validate warehouse license,Warehousing,warehouse.license_no;expiry,Warehouse licensing checks,High
+Goods Released Under Security Dir.13/2002,Security release,Verify security and release approvals,Releases,security_deposit_ref;release_approval,Security hold/release workflow,High
+AEO Directive No.65/2004,AEO privileges,Apply reduced inspections/AEO checks,AEO,aeo_id;status,Privilege flags for processing,Medium
+Disposal of Abandoned Goods Dir.56/2003,Abandonment procedure,Track abandonment and disposal,Enforcement,disposal_case_id;status,Disposition and approval trail,Medium
+HS Tariff Classification,HS rules,HS classification & tariff lookup,Goods Item,hs_code;tariff_rate,HS validation and justification,High
+Customs Transit Directive,Transit guarantee,Validate transit guarantee & seals,Transit,transit_guarantee_ref;seal_numbers,Transit guarantee workflow,High
+Declaration Forms (IM4/EX1/etc),Operational forms,Validate declaration type vs transaction,Declarations,declaration_type,Ensure correct form code used,Medium
+Veterinary/Food Laws,Permit requirements,Verify permits before clearance,Inspections,permit_ref;permit_type,Controlled-goods permit checks,High
+Forfeiture & Confiscation (Proclamation),Enforcement actions,Record forfeiture/confiscation case,Enforcement,forfeiture_case_id;assets_list,Legal hold and disposition,High
+Income Tax Proclamation No.979/2016,Withholding,Record withholding liabilities,Payments,withholding_amount;withholding_ref,Withholding where applicable,Medium

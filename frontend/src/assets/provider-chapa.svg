@@ -1,0 +1,5 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Chapa">
+  <rect x="2" y="2" width="60" height="60" rx="12" fill="#00A859" />
+  <path d="M17 33c0-7.732 6.268-14 14-14h16v8H31a6 6 0 0 0 0 12h16v8H31c-7.732 0-14-6.268-14-14z" fill="#ffffff"/>
+  <circle cx="45" cy="33" r="4" fill="#ffffff" fill-opacity="0.9" />
+</svg>
