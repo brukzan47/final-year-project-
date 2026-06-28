@@ -2,16 +2,14 @@ FROM node:20-alpine
 
 WORKDIR /usr/src/app
 
-# Install dependencies first
-COPY package*.json ./
-RUN npm ci --omit=dev || npm install --omit=dev
-
-# Copy app source
 COPY . .
 
-# Expose API port
+RUN if [ -f package.json ]; then \
+      npm ci --omit=dev || npm install --omit=dev; \
+    else \
+      cd backend && (npm ci --omit=dev || npm install --omit=dev); \
+    fi
+
 EXPOSE 5000
 
-# Run the server
-CMD ["node", "server.js"]
-
+CMD ["sh", "-c", "if [ -d backend ]; then cd backend; fi; node server.js"]

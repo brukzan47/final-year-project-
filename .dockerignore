@@ -1,0 +1,17 @@
+**/node_modules
+**/.env
+**/logs
+**/uploads
+**/coverage
+**/dist
+**/tmp
+.git
+.github
+database
+docs
+frontend
+ml
+Microsoft
+*.txt
+*.lnk
+npm-debug.log
