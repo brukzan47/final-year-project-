@@ -332,7 +332,7 @@ function AppContent() {
             <Route path="/payments" element={<ProtectedRoute roles={ROLE_GROUPS.payments} unauthorized={<h3>{t("unauthorized")}</h3>}><Payment /></ProtectedRoute>} />
             <Route path="/devices" element={<ProtectedRoute roles={["Super Admin","Admin","Customs Officer","Port Officer"]}><Devices /></ProtectedRoute>} />
             <Route path="/locations" element={<ProtectedRoute roles={["Super Admin","Admin","Port Officer"]}><Locations /></ProtectedRoute>} />
-            <Route path="/search" element={<ProtectedRoute roles={["Super Admin","Admin","Customs Officer","Importer","Inspector","Clearance Officer","Document Officer","Risk Analyst","Port Officer","Auditor"]}><Search /></ProtectedRoute>} />
+            <Route path="/search" element={<ProtectedRoute roles={["Super Admin","Admin","Importer","Inspector","Clearance Officer","Document Officer","Risk Analyst","Port Officer","Auditor"]}><Search /></ProtectedRoute>} />
             <Route path="/single-window" element={<ProtectedRoute roles={["Super Admin","Admin","Customs Officer","Document Officer","Port Officer"]}><SingleWindow /></ProtectedRoute>} />
             <Route path="/smart-analytics" element={<ProtectedRoute roles={ROLE_GROUPS.analytics}><SmartAnalytics /></ProtectedRoute>} />
             <Route path="/data-health" element={<ProtectedRoute roles={ROLE_GROUPS.admin}><DataHealth /></ProtectedRoute>} />

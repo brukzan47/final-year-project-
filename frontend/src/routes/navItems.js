@@ -10,7 +10,7 @@ export const navItems = [
   { to: "/payments", labelKey: "paymentBoard", roles: ROLE_GROUPS.payments },
   { to: "/devices", labelKey: "deviceRegistry", roles: ["Super Admin", "Admin", "Customs Officer", "Port Officer"] },
   { to: "/locations", labelKey: "locations", roles: ["Super Admin", "Admin", "Port Officer"] },
-  { to: "/search", labelKey: "search", roles: ["Super Admin", "Admin", "Customs Officer", "Importer", "Inspector", "Clearance Officer", "Document Officer", "Risk Analyst", "Port Officer", "Auditor"] },
+  { to: "/search", labelKey: "search", roles: ["Super Admin", "Admin", "Importer", "Inspector", "Clearance Officer", "Document Officer", "Risk Analyst", "Port Officer", "Auditor"] },
   { to: "/single-window", labelKey: "singleWindow", roles: ["Super Admin", "Admin", "Customs Officer", "Document Officer", "Port Officer"] },
   { to: "/smart-analytics", labelKey: "smartAnalytics", roles: ROLE_GROUPS.analytics },
   { to: "/data-health", labelKey: "dataHealth", roles: ROLE_GROUPS.admin },
