@@ -19,11 +19,13 @@ export const env = {
   strictStartup: (process.env.STRICT_STARTUP || (process.env.NODE_ENV === "production" ? "true" : "false")).toLowerCase() === "true",
   allowWeakJwtSecret: (process.env.ALLOW_WEAK_JWT_SECRET || "false").toLowerCase() === "true",
   db: {
+    connectionString: process.env.DATABASE_URL || "",
     host: process.env.DB_HOST || "localhost",
     user: process.env.DB_USER || "postgres",
     password: process.env.DB_PASS || "postgres",
     database: process.env.DB_NAME || "customs_db",
     port: process.env.DB_PORT || 5432,
+    ssl: (process.env.DB_SSL || (process.env.DATABASE_URL && process.env.NODE_ENV === "production" ? "true" : "false")).toLowerCase() === "true",
   },
   jwtSecret: process.env.JWT_SECRET || (process.env.NODE_ENV === "production" ? "" : "dev-insecure-change-me"),
   webhooks: {
