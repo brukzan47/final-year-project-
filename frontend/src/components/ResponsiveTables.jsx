@@ -3,7 +3,14 @@ import { useEffect } from "react";
 // Adds data-labels to table cells based on the header text and enables stacking on mobile.
 export default function ResponsiveTables() {
   useEffect(() => {
+    let pending = false;
+    let idleId = null;
+    let timeoutId = null;
+
     const annotate = () => {
+      pending = false;
+      idleId = null;
+      timeoutId = null;
       try {
         const tables = Array.from(document.querySelectorAll("table.smart-table"));
         tables.forEach((tbl) => {
@@ -26,14 +33,27 @@ export default function ResponsiveTables() {
         });
       } catch {}
     };
-    annotate();
-    window.addEventListener("resize", annotate);
-    const observer = new MutationObserver(() => annotate());
+
+    const scheduleAnnotate = () => {
+      if (pending) return;
+      pending = true;
+      if ("requestIdleCallback" in window) {
+        idleId = window.requestIdleCallback(annotate, { timeout: 600 });
+      } else {
+        timeoutId = window.setTimeout(annotate, 120);
+      }
+    };
+
+    scheduleAnnotate();
+    window.addEventListener("resize", scheduleAnnotate);
+    const observer = new MutationObserver(scheduleAnnotate);
     try {
       observer.observe(document.body, { childList: true, subtree: true });
     } catch {}
     return () => {
-      window.removeEventListener("resize", annotate);
+      window.removeEventListener("resize", scheduleAnnotate);
+      if (idleId && "cancelIdleCallback" in window) window.cancelIdleCallback(idleId);
+      if (timeoutId) window.clearTimeout(timeoutId);
       try { observer.disconnect(); } catch {}
     };
   }, []);
