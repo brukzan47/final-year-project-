@@ -2,16 +2,14 @@ import React from "react";
 import { Eye, EyeOff, ArrowRight } from "lucide-react";
 
 export default function LoginCard({
-  email,
-  password,
+  emailRef,
+  passwordRef,
   remember,
   showPassword,
   error,
   loading,
   service,
   checkedAtLabel,
-  onEmailChange,
-  onPasswordChange,
   onRememberChange,
   onTogglePassword,
   onSubmit,
@@ -44,8 +42,7 @@ export default function LoginCard({
           <input
             className="login-input"
             type="email"
-            value={email}
-            onChange={(e) => onEmailChange(e.target.value)}
+            ref={emailRef}
             placeholder="you@example.com"
             autoComplete="email"
             required
@@ -59,8 +56,7 @@ export default function LoginCard({
             <input
               className="login-input"
               type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => onPasswordChange(e.target.value)}
+              ref={passwordRef}
               placeholder="Password"
               autoComplete="current-password"
               required

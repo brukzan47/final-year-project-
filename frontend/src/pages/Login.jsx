@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useToast } from "../context/ToastContext.jsx";
 import { useLanguage } from "../context/LanguageContext.jsx";
@@ -14,8 +14,8 @@ export default function Login({ onSuccess }) {
   const { login } = useAuth();
   const toast = useToast();
   const { t } = useLanguage();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -61,6 +61,8 @@ export default function Login({ onSuccess }) {
     e.preventDefault();
     setError("");
     setLoading(true);
+    const email = emailRef.current?.value || "";
+    const password = passwordRef.current?.value || "";
     try {
       await login(email, password, remember);
       onSuccess?.();
@@ -93,21 +95,19 @@ export default function Login({ onSuccess }) {
           titleLabel={t("welcomeBack")}
           signInPromptLabel={t("signInPrompt")}
           primaryLabel={t("signIn")}
-          email={email}
-          password={password}
+          emailRef={emailRef}
+          passwordRef={passwordRef}
           remember={remember}
           showPassword={showPassword}
           error={error}
           loading={loading}
           service={service}
           checkedAtLabel={checkedAtLabel}
-          onEmailChange={setEmail}
-          onPasswordChange={setPassword}
           onRememberChange={setRemember}
           onTogglePassword={() => setShowPassword((value) => !value)}
           onSubmit={submit}
           onForgotPassword={() => {
-            setForgotEmail(email);
+            setForgotEmail(emailRef.current?.value || "");
             setForgotOpen(true);
           }}
           onCreateAccount={openCreateAccount}
