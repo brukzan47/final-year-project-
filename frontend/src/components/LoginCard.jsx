@@ -91,7 +91,7 @@ export default function LoginCard({
 
         {error ? <div className="login-error" role="alert">{error}</div> : null}
 
-        <button type="submit" className={`login-primary ${loading ? "is-loading" : ""}`} disabled={loading || service.state === "offline"}>
+        <button type="submit" className={`login-primary ${loading ? "is-loading" : ""}`} disabled={loading}>
           <span>{loading ? signingInLabel : primaryLabel}</span>
           <ArrowRight size={16} aria-hidden="true" />
         </button>

@@ -45,7 +45,7 @@ const app = express();
 // Middleware
 app.use(cors({
   origin(origin, callback) {
-    if (!origin || env.corsOrigins.includes(origin)) return callback(null, true);
+    if (!origin || env.corsOrigins.includes(origin) || isVercelPreviewOrigin(origin)) return callback(null, true);
     return callback(new Error("CORS origin not allowed"));
   },
   credentials: true,
@@ -98,3 +98,12 @@ app.get("/", (req, res) => {
 app.use(errorHandler);
 
 export default app;
+
+function isVercelPreviewOrigin(origin) {
+  try {
+    const { protocol, hostname } = new URL(origin);
+    return protocol === "https:" && (hostname === "vercel.app" || hostname.endsWith(".vercel.app"));
+  } catch {
+    return false;
+  }
+}

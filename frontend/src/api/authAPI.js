@@ -1,7 +1,7 @@
-const API_BASE = import.meta?.env?.VITE_API_BASE || "http://localhost:5000/api";
+import { getApiBase } from "./client.js";
 
 export async function login(email, password) {
-  const res = await fetch(`${API_BASE}/auth/login`, {
+  const res = await fetch(`${getApiBase()}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
@@ -17,7 +17,7 @@ export async function serviceHealth() {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 5000);
   try {
-    const res = await fetch(`${API_BASE}/public/health`, { signal: controller.signal });
+    const res = await fetch(`${getApiBase()}/public/health`, { signal: controller.signal });
     if (!res.ok) throw new Error(`Service unavailable (${res.status})`);
     return res.json();
   } finally {
@@ -26,7 +26,7 @@ export async function serviceHealth() {
 }
 
 export async function register(payload) {
-  const res = await fetch(`${API_BASE}/auth/register`, {
+  const res = await fetch(`${getApiBase()}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload || {}),
@@ -42,7 +42,7 @@ export async function getMe() {
   const token = (() => {
     try { const raw = localStorage.getItem('auth') || sessionStorage.getItem('auth'); return raw ? JSON.parse(raw).token : null; } catch { return null; }
   })();
-  const res = await fetch(`${API_BASE}/auth/me`, {
+  const res = await fetch(`${getApiBase()}/auth/me`, {
     headers: { 'Authorization': token ? `Bearer ${token}` : '' },
   });
   if (!res.ok) throw new Error('Failed to load profile');
@@ -51,7 +51,7 @@ export async function getMe() {
 
 export async function updateProfile(payload) {
   const token = (() => { try { const raw = localStorage.getItem('auth') || sessionStorage.getItem('auth'); return raw ? JSON.parse(raw).token : null; } catch { return null; } })();
-  const res = await fetch(`${API_BASE}/auth/profile`, {
+  const res = await fetch(`${getApiBase()}/auth/profile`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' },
     body: JSON.stringify(payload),
@@ -62,7 +62,7 @@ export async function updateProfile(payload) {
 
 export async function changePassword(payload) {
   const token = (() => { try { const raw = localStorage.getItem('auth') || sessionStorage.getItem('auth'); return raw ? JSON.parse(raw).token : null; } catch { return null; } })();
-  const res = await fetch(`${API_BASE}/auth/password`, {
+  const res = await fetch(`${getApiBase()}/auth/password`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' },
     body: JSON.stringify(payload),
@@ -73,7 +73,7 @@ export async function changePassword(payload) {
 
 // Best-effort forgot password; backend endpoint may differ.
 export async function forgotPassword(email) {
-  const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+  const res = await fetch(`${getApiBase()}/auth/forgot-password`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email }),

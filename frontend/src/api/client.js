@@ -1,4 +1,7 @@
-const DEFAULT_API_BASE = import.meta?.env?.VITE_API_BASE || "http://localhost:5000/api";
+const PRODUCTION_API_BASE = "https://ethiopian-import-management-system2026.onrender.com/api";
+const DEFAULT_API_BASE =
+  import.meta?.env?.VITE_API_BASE ||
+  (import.meta?.env?.PROD ? PRODUCTION_API_BASE : "http://localhost:5000/api");
 const SETTINGS_KEY = "app_settings";
 
 export function getApiBase() {

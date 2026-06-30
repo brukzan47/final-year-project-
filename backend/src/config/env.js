@@ -12,7 +12,10 @@ dotenv.config({ path: path.join(backendRoot, ".env") });
 export const env = {
   nodeEnv: process.env.NODE_ENV || "development",
   port: process.env.PORT || 5000,
-  corsOrigins: (process.env.CORS_ORIGINS || "http://localhost:5173,http://127.0.0.1:5173")
+  corsOrigins: (
+    process.env.CORS_ORIGINS ||
+    "http://localhost:5173,http://127.0.0.1:5173,https://ethiopian-import-management-system2026.onrender.com"
+  )
     .split(",")
     .map((x) => x.trim())
     .filter(Boolean),
