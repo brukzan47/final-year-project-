@@ -73,11 +73,17 @@ code {
     width: 100%;
   }
 
+  .smart-table--stack tbody {
+    display: grid;
+    gap: 10px;
+  }
+
   .smart-table--stack tr {
-    margin-bottom: 10px;
+    margin-bottom: 0;
     border: 1px solid #e5e7eb;
     border-radius: 10px;
     background: #ffffff;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
     overflow: hidden;
   }
 
@@ -128,11 +134,17 @@ code {
     min-width: 0;
   }
 
-  .smart-table--stack td > span,
-  .smart-table--stack td > div {
-    display: flex;
+  .smart-table--stack td > span {
+    display: inline-flex;
     flex-wrap: wrap;
     gap: 6px;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .smart-table--stack td > div {
+    display: grid;
+    gap: 4px;
     max-width: 100%;
     min-width: 0;
   }
