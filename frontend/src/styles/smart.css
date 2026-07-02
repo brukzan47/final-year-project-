@@ -58,41 +58,34 @@ code {
 @media (max-width: 760px) {
   .smart-table,
   .smart-table--stack {
-    border-collapse: separate !important;
+    display: table;
+    width: max-content !important;
+    min-width: 720px;
+    max-width: none;
+    border-collapse: collapse !important;
     border-spacing: 0 !important;
+    table-layout: auto;
   }
 
   .smart-table thead,
   .smart-table--stack thead {
-    display: none;
-  }
-
-  .smart-table,
-  .smart-table tbody,
-  .smart-table tr,
-  .smart-table td,
-  .smart-table--stack,
-  .smart-table--stack tbody,
-  .smart-table--stack tr,
-  .smart-table--stack td {
-    display: block;
-    width: 100%;
+    display: table-header-group;
   }
 
   .smart-table tbody,
   .smart-table--stack tbody {
-    display: grid;
-    gap: 12px;
+    display: table-row-group;
   }
 
   .smart-table tr,
   .smart-table--stack tr {
+    display: table-row;
     margin-bottom: 0;
-    border: 1px solid #cbd5e1;
-    border-radius: 10px;
+    border: 0;
+    border-radius: 0;
     background: #ffffff;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
-    overflow: hidden;
+    box-shadow: none;
+    overflow: visible;
   }
 
   .smart-table tr:last-child,
@@ -101,47 +94,51 @@ code {
   }
 
   .smart-table td,
+  .smart-table th,
   .smart-table--stack td {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 4px;
-    align-items: start;
-    min-height: 44px;
-    padding: 10px 12px !important;
+    display: table-cell !important;
+    width: auto;
+    min-width: 112px;
+    padding: 9px 10px !important;
     border-top: 0 !important;
-    border-bottom: 0 !important;
+    border-bottom: 1px solid #cbd5e1 !important;
     text-align: left !important;
-    font-size: 13px !important;
+    font-size: 12px !important;
     line-height: 1.35;
     color: #14213d;
     overflow-wrap: anywhere;
   }
 
+  .smart-table th,
+  .smart-table--stack th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #f8fafc;
+    color: #334155;
+    font-weight: 850;
+    white-space: nowrap;
+  }
+
   .smart-table td:last-child,
   .smart-table--stack td:last-child {
-    border-bottom: 0 !important;
+    border-bottom: 1px solid #cbd5e1 !important;
   }
 
   .smart-table td + td,
   .smart-table--stack td + td {
-    border-top: 1px solid #94a3b8 !important;
+    border-top: 0 !important;
   }
 
   .smart-table td::before,
   .smart-table--stack td::before {
-    content: attr(data-label);
-    color: #64748b;
-    display: block;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0;
-    line-height: 1.25;
-    text-transform: uppercase;
+    content: none;
+    display: none;
   }
 
   .smart-table td[colspan],
   .smart-table--stack td[colspan] {
-    display: block !important;
+    display: table-cell !important;
     color: #64748b;
   }
 
@@ -166,8 +163,9 @@ code {
 
   .smart-table td > div,
   .smart-table--stack td > div {
-    display: grid;
-    gap: 4px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
     max-width: 100%;
     min-width: 0;
   }
