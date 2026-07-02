@@ -4047,6 +4047,17 @@ footer,
   font-size: 24px;
 }
 
+.declaration-form-page-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.declaration-form-page-actions .eu-btn {
+  min-width: 190px;
+}
+
 .declaration-form-page-subtitle {
   font-size: 18px;
 }
@@ -4231,6 +4242,11 @@ button.risk-tag {
 
   .declaration-form-page-filter {
     min-width: 0;
+    width: 100%;
+  }
+
+  .declaration-form-page-actions,
+  .declaration-form-page-actions .eu-btn {
     width: 100%;
   }
 }

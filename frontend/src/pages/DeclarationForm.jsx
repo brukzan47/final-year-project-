@@ -13,6 +13,7 @@ import Modal from "../components/Modal.jsx";
 import "../styles/shipmentWizard.css";
 const CURRENCY_OPTIONS = ["USD", "ETB", "EUR", "GBP", "CNY", "AED", "SAR", "KES"];
 const TARIFF_OPTIONS = ["0", "5", "10", "15", "20", "30", "35", "40", "custom"];
+const DECLARATION_FORM_ID = "declaration-submit-form";
 const CUSTOMS_STATION_OPTIONS = [
   "Addis Ababa Bole",
   "Modjo",
@@ -88,6 +89,7 @@ export default function DeclarationForm() {
     () => availableShipments.find((s) => String(s.shipment_id) === String(form.shipment_id)) || null,
     [availableShipments, form.shipment_id]
   );
+  const canSubmit = !!form.shipment_id && !loading;
 
   const calcPreview = useMemo(() => {
     const cifUsd = Number(form?.duties_etb ? 0 : selectedShipment?.cif_value_usd || 0);
@@ -220,10 +222,20 @@ export default function DeclarationForm() {
               <div className="declaration-form-page-kicker">{t("newDeclaration")}</div>
               <h2 className="declaration-form-page-title">{t("newDeclaration")}</h2>
             </div>
+            <div className="declaration-form-page-actions">
+              <button
+                type="submit"
+                form={DECLARATION_FORM_ID}
+                className="eu-btn primary"
+                disabled={!canSubmit}
+              >
+                {loading ? t("submitting") : t("submitDeclaration")}
+              </button>
+            </div>
           </div>
         </div>
 
-      <form onSubmit={submit} className="eu-card declaration-form-page-card">
+      <form id={DECLARATION_FORM_ID} onSubmit={submit} className="eu-card declaration-form-page-card">
 
         <div className="eu-grid two">
           <label className="eu-field">
@@ -344,7 +356,7 @@ export default function DeclarationForm() {
 
         <div className="eu-nav" style={{ justifyContent: "space-between" }}>
           <button type="button" className="eu-btn" onClick={() => navigate("/shipments")}>{t("addShipment")}</button>
-          <button type="submit" className="eu-btn primary" disabled={loading}>{loading ? t("submitting") : t("submitDeclaration")}</button>
+          <button type="submit" className="eu-btn primary" disabled={!canSubmit}>{loading ? t("submitting") : t("submitDeclaration")}</button>
         </div>
 
         {error && <div className="err">{error}</div>}
