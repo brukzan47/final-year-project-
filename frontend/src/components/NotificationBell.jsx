@@ -145,14 +145,15 @@ export default function NotificationBell() {
   }, []);
 
   useEffect(() => {
+    if (!open) return undefined;
     const handleClickOutside = (event) => {
       const target = event.target;
       if (rootRef.current?.contains(target) || dropdownRef.current?.contains(target)) return;
       setOpen(false);
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    document.addEventListener("pointerdown", handleClickOutside, { passive: true });
+    return () => document.removeEventListener("pointerdown", handleClickOutside);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return undefined;
