@@ -9,7 +9,7 @@ const router = express.Router();
 router.get("/", verifyToken, authorizeRoles("Admin", "Customs Officer", "Inspector", "Clearance Officer", "Document Officer", "Risk Analyst", "Port Officer", "Auditor", "Importer"), getDeclarations);
 
 // POST create declaration
-router.post("/", verifyToken, authorizeRoles("Importer", "Customs Officer"), createDeclaration);
+router.post("/", verifyToken, authorizeRoles("Admin", "Importer", "Customs Officer"), createDeclaration);
 
 // Approve/Reject declaration (Admin, Customs Officer)
 router.post(
