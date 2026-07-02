@@ -197,6 +197,9 @@ export default function Home() {
             </div>
           </div>
           <div className="portal-welcome__buttons">
+            <button type="button" onClick={() => navigate("/declarations")}>
+              {t("declarationDesk")}
+            </button>
             <button type="button" onClick={() => navigate(roleItems[0]?.to || "/search")}>
               Open workspace
             </button>

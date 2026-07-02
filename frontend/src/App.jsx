@@ -255,6 +255,7 @@ function AuthenticatedPortalHome() {
   const { t } = useLanguage();
   const cards = [
     { title: "Importers", body: "Manage importer records and onboarding steps.", to: "/importers" },
+    { title: "Declarations", body: "Create and submit customs declarations.", to: "/declarations" },
     { title: "Services", body: "Open the main single-window transaction tools.", to: "/single-window" },
     { title: "Customs Guide", body: "Search tariffs, codification, and process help.", to: "/search" },
     { title: "Resources", body: "Open references, reports, and downloads.", to: "/reports" },
@@ -282,6 +283,9 @@ function AuthenticatedPortalHome() {
             ))}
           </div>
           <div className="login-card__homeActions">
+            <button type="button" className="login-primary" onClick={() => navigate("/declarations")}>
+              Declarations
+            </button>
             <button type="button" className="login-primary" onClick={() => navigate("/single-window")}>
               Open workspace
             </button>
