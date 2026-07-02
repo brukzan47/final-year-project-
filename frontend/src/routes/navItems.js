@@ -3,8 +3,8 @@ import { ROLE_GROUPS } from "../utils/roleAccess.js";
 export const navItems = [
   { to: "/importers", labelKey: "economicOperators", roles: ["Super Admin", "Admin", "Customs Officer", "Importer"] },
   { to: "/shipments", labelKey: "shipmentDesk", roles: ROLE_GROUPS.tracking },
-  { to: "/declarations", labelKey: "declarationDesk", roles: ROLE_GROUPS.declarations },
-  { to: "/declarations-admin", labelKey: "declarationAdmin", roles: ROLE_GROUPS.declarations },
+  { to: "/declarations", labelKey: "declarationDesk", roles: ROLE_GROUPS.declarationEntry },
+  { to: "/declarations-admin", labelKey: "declarationAdmin", roles: ROLE_GROUPS.declarationReview },
   { to: "/inspections", labelKey: "inspectionDesk", roles: ROLE_GROUPS.inspections },
   { to: "/finance", labelKey: "financeWorkspace", roles: ROLE_GROUPS.finance },
   { to: "/payments", labelKey: "paymentBoard", roles: ROLE_GROUPS.payments },

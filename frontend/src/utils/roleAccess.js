@@ -18,6 +18,8 @@ export const ROLE_GROUPS = {
   officer: ["Super Admin", "Admin", "Customs Officer"],
   operations: ["Super Admin", "Admin", "Customs Officer", "Inspector", "Clearance Officer", "Document Officer", "Risk Analyst", "Port Officer"],
   declarations: ["Super Admin", "Admin"],
+  declarationEntry: ["Super Admin", "Admin", "Customs Officer", "Importer"],
+  declarationReview: ["Super Admin", "Admin", "Customs Officer"],
   inspections: ["Super Admin", "Admin", "Customs Officer", "Inspector"],
   clearance: ["Super Admin", "Admin", "Customs Officer", "Clearance Officer"],
   documents: ["Super Admin", "Admin", "Customs Officer", "Document Officer", "Importer"],

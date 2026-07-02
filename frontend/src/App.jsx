@@ -325,8 +325,8 @@ function AppContent() {
             <Route path="/home" element={<AuthenticatedPortalHome />} />
             <Route path="/importers" element={<ProtectedRoute roles={["Super Admin","Admin","Customs Officer","Importer"]} unauthorized={<h3>{t("unauthorized")}</h3>}><ImporterForm /></ProtectedRoute>} />
             <Route path="/shipments" element={<ProtectedRoute roles={ROLE_GROUPS.tracking}><ShipmentForm /></ProtectedRoute>} />
-            <Route path="/declarations" element={<ProtectedRoute roles={ROLE_GROUPS.declarations}><DeclarationForm /></ProtectedRoute>} />
-            <Route path="/declarations-admin" element={<ProtectedRoute roles={ROLE_GROUPS.declarations}><DeclarationsAdmin /></ProtectedRoute>} />
+            <Route path="/declarations" element={<ProtectedRoute roles={ROLE_GROUPS.declarationEntry}><DeclarationForm /></ProtectedRoute>} />
+            <Route path="/declarations-admin" element={<ProtectedRoute roles={ROLE_GROUPS.declarationReview}><DeclarationsAdmin /></ProtectedRoute>} />
             <Route path="/inspections" element={<ProtectedRoute roles={ROLE_GROUPS.inspections} unauthorized={<h3>{t("unauthorized")}</h3>}><Inspection /></ProtectedRoute>} />
             <Route path="/finance/*" element={<ProtectedRoute roles={ROLE_GROUPS.finance} unauthorized={<h3>{t("unauthorized")}</h3>}><FinanceOfficer /></ProtectedRoute>} />
             <Route path="/payments" element={<ProtectedRoute roles={ROLE_GROUPS.payments} unauthorized={<h3>{t("unauthorized")}</h3>}><Payment /></ProtectedRoute>} />

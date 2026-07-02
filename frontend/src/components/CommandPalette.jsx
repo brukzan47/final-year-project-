@@ -36,7 +36,8 @@ export default function CommandPalette() {
   const actionItems = useMemo(() => {
     const byRole = (allowed) => hasRoleAccess(role, allowed);
     const all = [
-      { type: "action", label: `${t("declarationDesk")}`, run: () => navigate("/declarations-admin"), roles: ROLE_GROUPS.declarations },
+      { type: "action", label: `${t("declarationDesk")}`, run: () => navigate("/declarations"), roles: ROLE_GROUPS.declarationEntry },
+      { type: "action", label: `${t("declarationAdmin")}`, run: () => navigate("/declarations-admin"), roles: ROLE_GROUPS.declarationReview },
       { type: "action", label: `${t("shipmentDesk")}`, run: () => navigate("/shipments"), roles: ROLE_GROUPS.tracking },
       { type: "action", label: `${t("reports")}`, run: () => navigate("/reports"), roles: ROLE_GROUPS.reports },
       { type: "action", label: `${t("notificationsAdmin")}`, run: () => navigate("/notifications-admin"), roles: ROLE_GROUPS.notifications },

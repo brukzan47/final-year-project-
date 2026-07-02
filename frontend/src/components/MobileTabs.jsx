@@ -7,7 +7,7 @@ import { ROLE_GROUPS, hasRoleAccess } from "../utils/roleAccess.js";
 // Mobile-first quick nav. Picks a concise set of links per role.
 const baseTabs = [
   { to: "/home", label: "Home", roles: ROLE_GROUPS.all },
-  { to: "/declarations-admin", label: "Declare", roles: ROLE_GROUPS.declarations },
+  { to: "/declarations", label: "Declare", roles: ROLE_GROUPS.declarationEntry },
   { to: "/inspections", label: "Inspections", roles: ROLE_GROUPS.inspections },
   { to: "/clearance", label: "Clearance", roles: ROLE_GROUPS.clearance },
   { to: "/reports", label: "Reports", roles: ROLE_GROUPS.reports },
