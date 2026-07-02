@@ -1172,12 +1172,12 @@
   .smart-table,
   .smart-table--stack {
     display: table !important;
-    width: max-content !important;
+    width: 100% !important;
     min-width: 720px !important;
     max-width: none !important;
     border-collapse: collapse !important;
     border-spacing: 0 !important;
-    table-layout: auto !important;
+    table-layout: fixed !important;
   }
 
   .smart-table thead,
@@ -1209,6 +1209,7 @@
     padding: 9px 10px !important;
     border-top: 0 !important;
     border-bottom: 1px solid #cbd5e1 !important;
+    border-right: 1px solid #cbd5e1 !important;
     text-align: left !important;
     font-size: 12px !important;
     line-height: 1.35 !important;
@@ -1228,6 +1229,13 @@
   .smart-table--stack td::before {
     content: none !important;
     display: none !important;
+  }
+
+  .smart-table th:last-child,
+  .smart-table td:last-child,
+  .smart-table--stack th:last-child,
+  .smart-table--stack td:last-child {
+    border-right: 0 !important;
   }
 
   [class*="-records-panel"],

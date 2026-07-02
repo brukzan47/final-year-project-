@@ -846,8 +846,9 @@
     border-collapse: collapse;
     border-spacing: 0;
     display: table;
+    width: 100%;
     min-width: 760px;
-    width: max-content;
+    table-layout: fixed;
   }
   .finance-table thead {
     display: table-header-group;
@@ -872,6 +873,7 @@
     min-width: 112px;
     border-top: 0;
     border-bottom: 1px solid #cbd5e1;
+    border-right: 1px solid #cbd5e1;
     padding: 9px 10px;
     color: #22384d;
     font-size: 12px;
@@ -880,6 +882,7 @@
   }
   .finance-table td:last-child {
     border-bottom: 1px solid #cbd5e1;
+    border-right: 0;
   }
   .finance-table td + td {
     border-top: 0;
