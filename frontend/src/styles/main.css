@@ -1555,6 +1555,23 @@ button.primary {
   padding: 8px;
 }
 
+.fileupload-documents-view {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.fileupload-documents-view .smart-table {
+  background: #ffffff;
+  color: #14213d;
+}
+
+.fileupload-documents-view .smart-table button {
+  max-width: 220px;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
 .fileupload-verification {
   width: min(100%, 720px);
   margin: 20px auto 0;
@@ -4325,5 +4342,104 @@ button.risk-tag {
 
   .declaration-form-page-submit-bar .eu-btn {
     width: 100%;
+  }
+
+  .fileupload-page {
+    justify-items: stretch;
+  }
+
+  .fileupload-page .fileupload-sandbox,
+  .fileupload-verification {
+    width: 100%;
+  }
+
+  .fileupload-page .fileupload-sandbox .sandbox-panel {
+    border-radius: 12px;
+  }
+
+  .fileupload-records {
+    margin-top: 14px;
+    padding-top: 14px;
+  }
+
+  .fileupload-records__title {
+    font-size: 16px;
+  }
+
+  .fileupload-documents-view .smart-table thead {
+    display: none;
+  }
+
+  .fileupload-documents-view .smart-table,
+  .fileupload-documents-view .smart-table tbody,
+  .fileupload-documents-view .smart-table tr,
+  .fileupload-documents-view .smart-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .fileupload-documents-view .smart-table tr {
+    margin-bottom: 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #ffffff;
+    overflow: hidden;
+  }
+
+  .fileupload-documents-view .smart-table td {
+    display: grid;
+    grid-template-columns: minmax(96px, 38%) minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+    border-bottom: 1px solid #eef2f7 !important;
+    padding: 9px 10px !important;
+    font-size: 12px !important;
+    overflow-wrap: anywhere;
+  }
+
+  .fileupload-documents-view .smart-table td:last-child {
+    border-bottom: 0 !important;
+  }
+
+  .fileupload-documents-view .smart-table td::before {
+    content: attr(data-label);
+    color: #64748b;
+    font-weight: 800;
+  }
+
+  .fileupload-documents-view .smart-table td > span {
+    display: flex;
+    gap: 6px;
+  }
+
+  .fileupload-documents-view .smart-table td button {
+    min-height: 34px;
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .document-preview-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .document-preview-actions {
+    width: 100%;
+  }
+
+  .document-preview-actions a,
+  .document-preview-actions button {
+    flex: 1 1 auto;
+    justify-content: center;
+    min-height: 36px;
+    text-align: center;
+  }
+
+  .document-preview-frame {
+    min-height: 220px;
+  }
+
+  .document-preview-box--max .document-preview-frame {
+    min-height: 55vh;
   }
 }
