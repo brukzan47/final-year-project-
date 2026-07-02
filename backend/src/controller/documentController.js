@@ -35,7 +35,7 @@ export const uploadDocument = async (req, res) => {
 
     const { declaration_id, shipment_id, title } = req.body;
     const file = req.file;
-    const absPath = path.resolve(process.cwd(), `./uploads/${file.filename}`);
+    const absPath = path.resolve(file.path);
     let file_hash = null;
     try {
       file_hash = sha256FileSync(absPath);
@@ -108,7 +108,7 @@ export const uploadBatch = async (req, res) => {
           skipped.push({ field, title, file_name: file.originalname, reason: "already_uploaded" });
           continue;
         }
-        const absPath = path.resolve(process.cwd(), `./uploads/${file.filename}`);
+        const absPath = path.resolve(file.path);
         let file_hash = null;
         try { file_hash = sha256FileSync(absPath); } catch (_) {}
         const payload = {

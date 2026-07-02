@@ -2,6 +2,8 @@
 **/.env
 **/logs
 **/uploads
+!backend/uploads
+!backend/uploads/**
 **/coverage
 **/dist
 **/tmp
