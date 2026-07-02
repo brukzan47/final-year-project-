@@ -90,6 +90,35 @@ export default function DeclarationForm() {
     [availableShipments, form.shipment_id]
   );
   const canSubmit = !!form.shipment_id && !loading;
+  const selectedCustomsStationValue = CUSTOMS_STATION_OPTIONS.includes(form.customs_station)
+    ? form.customs_station
+    : (form.customs_station ? OTHER_VALUE : "");
+  const showCustomsStationInput = !!form.customs_station && !CUSTOMS_STATION_OPTIONS.includes(form.customs_station);
+
+  const shipmentOptionNodes = useMemo(
+    () =>
+      availableShipments.map((s) => (
+        <option key={s.shipment_id} value={s.shipment_id}>
+          {s.shipment_reference} - {s.company_name}
+        </option>
+      )),
+    [availableShipments]
+  );
+
+  const customsStationOptionNodes = useMemo(
+    () => CUSTOMS_STATION_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>),
+    []
+  );
+
+  const currencyOptionNodes = useMemo(
+    () => CURRENCY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>),
+    []
+  );
+
+  const tariffOptionNodes = useMemo(
+    () => TARIFF_OPTIONS.map((r) => <option key={r} value={r}>{r === "custom" ? t("custom") : r}</option>),
+    [t]
+  );
 
   const calcPreview = useMemo(() => {
     const cifUsd = Number(form?.duties_etb ? 0 : selectedShipment?.cif_value_usd || 0);
@@ -114,6 +143,17 @@ export default function DeclarationForm() {
       toast?.error?.(e.message || t("failedToLoadDeclarations"));
     }
   }, [t, toast]);
+
+  const refreshAfterInteraction = useCallback(() => {
+    const run = () => {
+      load().catch(() => {});
+    };
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(run, { timeout: 1000 });
+    } else {
+      window.setTimeout(run, 120);
+    }
+  }, [load]);
 
   useEffect(() => {
     load();
@@ -141,7 +181,7 @@ export default function DeclarationForm() {
     }
   }, [items, declFilter]);
 
-  const onField = (k, v) => setForm((prev) => ({ ...prev, [k]: v }));
+  const onField = useCallback((k, v) => setForm((prev) => ({ ...prev, [k]: v })), []);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -172,9 +212,10 @@ export default function DeclarationForm() {
         duties_etb: "",
         payment_receipt_no: "",
       });
-      await load();
       if (role === "Importer" && created?.declaration_id) {
         navigate(`/payments?declaration_id=${encodeURIComponent(created.declaration_id)}&created=1`);
+      } else {
+        refreshAfterInteraction();
       }
     } catch (e) {
       setError(e.message || t("failedToSubmitDeclaration"));
@@ -267,11 +308,7 @@ export default function DeclarationForm() {
             <span>{t("shipment")}</span>
             <select value={form.shipment_id} onChange={(e) => onField("shipment_id", e.target.value)}>
               <option value="">{t("selectShipment")}</option>
-              {availableShipments.map((s) => (
-                <option key={s.shipment_id} value={s.shipment_id}>
-                  {s.shipment_reference} - {s.company_name}
-                </option>
-              ))}
+              {shipmentOptionNodes}
             </select>
             {availableShipments.length === 0 && (
               <small style={{ color: "#6b7c93" }}>{t("allShipmentsAlreadyDeclared")}</small>
@@ -305,16 +342,14 @@ export default function DeclarationForm() {
           <label className="eu-field">
             <span>{t("customsStation")}</span>
             <select
-              value={CUSTOMS_STATION_OPTIONS.includes(form.customs_station) ? form.customs_station : (form.customs_station ? OTHER_VALUE : "")}
+              value={selectedCustomsStationValue}
               onChange={(e) => onField("customs_station", e.target.value === OTHER_VALUE ? "" : e.target.value)}
             >
               <option value="">Select customs station...</option>
-              {CUSTOMS_STATION_OPTIONS.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
+              {customsStationOptionNodes}
               <option value={OTHER_VALUE}>Other (type manually)</option>
             </select>
-            {(form.customs_station && !CUSTOMS_STATION_OPTIONS.includes(form.customs_station)) && (
+            {showCustomsStationInput && (
               <input
                 value={form.customs_station}
                 onChange={(e) => onField("customs_station", e.target.value)}
@@ -331,9 +366,7 @@ export default function DeclarationForm() {
           <label className="eu-field">
             <span>{t("currency")}</span>
             <select value={form.currency} onChange={(e) => onField("currency", e.target.value)}>
-              {CURRENCY_OPTIONS.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
+              {currencyOptionNodes}
             </select>
           </label>
 
@@ -348,9 +381,7 @@ export default function DeclarationForm() {
               }}
             >
               <option value="">{t("selectRate")}</option>
-              {TARIFF_OPTIONS.map((r) => (
-                <option key={r} value={r}>{r === "custom" ? t("custom") : r}</option>
-              ))}
+              {tariffOptionNodes}
             </select>
           </label>
 
