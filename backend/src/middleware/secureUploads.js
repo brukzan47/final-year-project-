@@ -1,3 +1,4 @@
+import fs from "fs";
 import path from "path";
 import { Document } from "../models/Document.js";
 import { isImporterLike } from "../utils/roles.js";
@@ -11,11 +12,33 @@ export async function serveDocumentFile(req, res) {
       return res.status(403).json({ message: "Access denied: document belongs to another user" });
     }
 
-    const uploadRoot = path.resolve(process.cwd(), "uploads");
-    const fileName = path.basename(String(doc.file_path || ""));
-    const absPath = path.resolve(uploadRoot, fileName);
-    if (!absPath.startsWith(uploadRoot + path.sep)) {
-      return res.status(400).json({ message: "Invalid document path" });
+    const rawPath = String(doc.file_path || "").trim();
+    const fileName = path.basename(rawPath || String(doc.file_name || ""));
+    const candidates = [];
+
+    if (rawPath) {
+      candidates.push(
+        path.isAbsolute(rawPath) ? rawPath : path.resolve(process.cwd(), rawPath.replace(/^\//, "")),
+        path.resolve(process.cwd(), rawPath.replace(/^\//, "")),
+      );
+    }
+    candidates.push(
+      path.resolve(process.cwd(), "uploads", fileName),
+      path.resolve(process.cwd(), "backend", "uploads", fileName),
+      path.resolve(process.cwd(), "uploads", String(doc.file_name || fileName)),
+      path.resolve(process.cwd(), "backend", "uploads", String(doc.file_name || fileName)),
+    );
+
+    const absPath = candidates.find((candidate) => {
+      try {
+        return candidate && fs.existsSync(candidate);
+      } catch {
+        return false;
+      }
+    });
+
+    if (!absPath) {
+      return res.status(404).json({ message: "Document file not found on server" });
     }
 
     return res.download(absPath, doc.file_name || fileName);
