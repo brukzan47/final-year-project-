@@ -87,14 +87,15 @@ code {
 
   .smart-table--stack td {
     display: grid !important;
-    grid-template-columns: minmax(92px, 36%) minmax(0, 1fr);
-    gap: 10px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
     align-items: start;
-    min-height: 38px;
-    padding: 9px 10px !important;
+    min-height: 44px;
+    padding: 10px 12px !important;
     border-bottom: 1px solid #eef2f7 !important;
     text-align: left !important;
-    font-size: 12px !important;
+    font-size: 13px !important;
+    line-height: 1.35;
     color: #14213d;
     overflow-wrap: anywhere;
   }
@@ -106,8 +107,12 @@ code {
   .smart-table--stack td::before {
     content: attr(data-label);
     color: #64748b;
+    display: block;
+    font-size: 11px;
     font-weight: 800;
+    letter-spacing: 0;
     line-height: 1.25;
+    text-transform: uppercase;
   }
 
   .smart-table--stack td[colspan] {
@@ -125,6 +130,9 @@ code {
 
   .smart-table--stack td > span,
   .smart-table--stack td > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
     max-width: 100%;
     min-width: 0;
   }
