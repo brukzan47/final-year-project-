@@ -73,6 +73,8 @@ export default function DeclarationForm() {
   const [docItems, setDocItems] = useState([]);
   const [ocrPreview, setOcrPreview] = useState({});
   const [ocrLoadingId, setOcrLoadingId] = useState("");
+  const [docPreview, setDocPreview] = useState(null);
+  const [docPreviewLoading, setDocPreviewLoading] = useState(false);
 
   const highlightRef = useRef(null);
 
@@ -255,6 +257,8 @@ export default function DeclarationForm() {
     setDocsDeclId(declarationId);
     setDocsErr("");
     setOcrPreview({});
+    setDocPreview(null);
+    setDocPreviewLoading(false);
     try {
       const list = await DocumentsAPI.listByDeclaration(declarationId);
       setDocItems(Array.isArray(list) ? list : []);
@@ -265,14 +269,27 @@ export default function DeclarationForm() {
 
   const openDocument = async (doc) => {
     try {
+      setDocPreviewLoading(true);
       const blob = await DocumentsAPI.downloadFile(doc.document_id);
       const url = URL.createObjectURL(blob);
-      window.open(url, "_blank", "noopener,noreferrer");
-      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      setDocPreview((prev) => {
+        if (prev?.url) URL.revokeObjectURL(prev.url);
+        return {
+          url,
+          name: doc.file_name || doc.title || t("documentPreview"),
+          type: blob.type || doc.file_type || "",
+        };
+      });
     } catch (e) {
       toast?.error?.(e.message || t("failedToLoadDocuments"));
+    } finally {
+      setDocPreviewLoading(false);
     }
   };
+
+  useEffect(() => () => {
+    if (docPreview?.url) URL.revokeObjectURL(docPreview.url);
+  }, [docPreview?.url]);
 
   const clearDeclFilter = useCallback(() => {
     setDeclFilter("");
@@ -563,6 +580,33 @@ export default function DeclarationForm() {
               </tbody>
             </table>
           )}
+
+          <div style={{ display: "grid", gap: 8, marginTop: 4 }}>
+            <div style={{ fontWeight: 700 }}>{t("documentPreview")}</div>
+            <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, background: "#f8fafc", overflow: "hidden" }}>
+              <div style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: "space-between", padding: "8px 10px", borderBottom: "1px solid #e5e7eb", flexWrap: "wrap" }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700 }}>{docPreview?.name || t("selectDocumentToPreview")}</div>
+                  <div style={{ fontSize: 12, color: "#6b7280" }}>{docPreview?.type || t("selectDocumentToPreview")}</div>
+                </div>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {docPreview?.url && (
+                    <a href={docPreview.url} target="_blank" rel="noreferrer">{t("openNewTab")}</a>
+                  )}
+                </div>
+              </div>
+              <div style={{ minHeight: 260, background: "#fff" }}>
+                {docPreviewLoading && <div style={{ padding: 12 }}>{t("loadingDocument")}</div>}
+                {!docPreviewLoading && !docPreview && <div style={{ padding: 12, color: "#6b7280" }}>{t("selectDocumentToPreview")}</div>}
+                {!docPreviewLoading && docPreview && String(docPreview.type || "").toLowerCase().startsWith("image/") && (
+                  <img src={docPreview.url} alt={docPreview.name} style={{ display: "block", width: "100%", maxHeight: 560, objectFit: "contain" }} />
+                )}
+                {!docPreviewLoading && docPreview && !String(docPreview.type || "").toLowerCase().startsWith("image/") && (
+                  <iframe title={docPreview.name} src={docPreview.url} style={{ width: "100%", height: 560, border: 0 }} />
+                )}
+              </div>
+            </div>
+          </div>
 
           {Object.keys(ocrPreview).length > 0 && (
             <div style={{ padding: 10, border: "1px solid #e5e7eb", borderRadius: 8, background: "#f8fafc" }}>
