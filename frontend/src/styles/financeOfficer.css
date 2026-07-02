@@ -852,7 +852,7 @@
   }
   .finance-table tbody {
     display: grid;
-    gap: 10px;
+    gap: 12px;
   }
   .finance-table tr,
   .finance-table td {
@@ -861,7 +861,7 @@
   }
   .finance-table tr {
     margin-bottom: 10px;
-    border: 1px solid #d9e1ea;
+    border: 1px solid #cbd5e1;
     border-radius: 10px;
     background: #ffffff;
     box-shadow: 0 4px 12px rgba(16, 24, 40, 0.05);
@@ -869,7 +869,7 @@
     overflow: hidden;
   }
   .finance-table td {
-    border-bottom: 1px solid #edf2f7;
+    border-bottom: 1px solid #cbd5e1;
     padding: 10px 12px;
     color: #22384d;
     font-size: 13px;
