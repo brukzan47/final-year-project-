@@ -1501,6 +1501,8 @@ button.primary {
 .fileupload-page .fileupload-sandbox {
   width: min(100%, 1180px);
   margin: 0 auto;
+  display: grid;
+  gap: 16px;
 }
 
 .fileupload-page .fileupload-sandbox .sandbox-panel {

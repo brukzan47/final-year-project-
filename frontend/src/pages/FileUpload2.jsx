@@ -432,6 +432,8 @@ export default function FileUpload() {
               {loading ? t.uploading : t.upload}
             </button>
           </form>
+        </SandboxPanel>
+        <SandboxPanel kicker="" title={t.fullUploadedRecords || t.attachedDocs} chips={[t.attachedDocs, t.documentPreview, t.ocrExtracts]}>
           {uploadedRecords}
         </SandboxPanel>
       </div>
