@@ -411,7 +411,7 @@ export default function DeclarationForm() {
         </div>
 
         <div className="eu-nav" style={{ justifyContent: "space-between" }}>
-          <button type="button" className="eu-btn" onClick={() => navigate("/shipments")}>{t("addShipment")}</button>
+          <button type="button" className="eu-btn" onClick={() => navigate("/shipments")}>{t("addDeclaration")}</button>
           <button type="submit" className="eu-btn primary" disabled={!canSubmit}>{loading ? t("submitting") : t("submitDeclaration")}</button>
         </div>
 
