@@ -285,7 +285,7 @@ export default function FileUpload() {
         <h3>{t.attachedDocs}</h3>
         {attached.length === 0 && <div>{t.noDocumentsFound}</div>}
         {attached.length > 0 && (
-          <table className="smart-table" style={{ width: '100%' , borderCollapse: 'collapse' }}>
+          <table className="smart-table smart-table--stack" style={{ width: '100%' , borderCollapse: 'collapse' }}>
             <thead>
               <tr>
                 <th align="left">{t.title}</th>

@@ -40,7 +40,6 @@ export default function ResponsiveTables() {
             td.setAttribute("data-label", headers[idx]);
           }
         });
-        ensureRowToggle(tr, cells.length);
       });
     };
 
@@ -84,7 +83,10 @@ export default function ResponsiveTables() {
       if (isSmallScreen()) scheduleAll();
     };
 
-    scheduleAll();
+    if (isSmallScreen()) {
+      annotateAll = true;
+      annotate();
+    }
     window.addEventListener("resize", onResize);
     const observer = new MutationObserver((mutations) => {
       const tables = [];
@@ -108,30 +110,4 @@ export default function ResponsiveTables() {
   }, []);
 
   return null;
-}
-
-function ensureRowToggle(tr, cellCount) {
-  try {
-    if (!tr || tr.getAttribute("data-row-toggle-ready") === "1") return;
-    if (cellCount <= 2) return;
-    const firstCell = tr.cells?.[0];
-    if (!firstCell) return;
-
-    tr.classList.add("smart-row-collapsed");
-
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "smart-row-toggle";
-    btn.textContent = "Show";
-    btn.setAttribute("aria-expanded", "false");
-    btn.addEventListener("click", () => {
-      const expanded = tr.classList.toggle("smart-row-expanded");
-      tr.classList.toggle("smart-row-collapsed", !expanded);
-      btn.textContent = expanded ? "Hide" : "Show";
-      btn.setAttribute("aria-expanded", expanded ? "true" : "false");
-    });
-
-    firstCell.appendChild(btn);
-    tr.setAttribute("data-row-toggle-ready", "1");
-  } catch {}
 }

@@ -1306,6 +1306,8 @@ button.primary {
   display: grid;
   gap: 10px;
   min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
   padding: 14px;
   border: 1px solid #bfdbfe;
   border-radius: 8px;
@@ -1319,7 +1321,9 @@ button.primary {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  min-width: 0;
   font-weight: 850;
+  overflow-wrap: anywhere;
 }
 
 .sandbox-kicker {
@@ -1335,9 +1339,36 @@ button.primary {
 }
 
 .sandbox-body {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  max-width: 100%;
   color: #475569;
   font-size: 13px;
   line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.sandbox-body > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.sandbox-body table {
+  max-width: 100%;
+}
+
+.sandbox-body input,
+.sandbox-body select,
+.sandbox-body textarea,
+.sandbox-body button {
+  max-width: 100%;
+}
+
+.sandbox-body pre,
+.sandbox-body code {
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .sandbox-actions {
@@ -1345,6 +1376,7 @@ button.primary {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  min-width: 0;
 }
 
 .sandbox-chip {
@@ -1358,6 +1390,9 @@ button.primary {
   color: #3730a3;
   font-size: 12px;
   font-weight: 750;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .importer-page {
@@ -4293,6 +4328,51 @@ button.risk-tag {
   .portal-search,
   .login-card {
     width: 100%;
+  }
+
+  .sandbox-panel {
+    gap: 10px;
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .sandbox-header {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 6px;
+    font-size: 15px;
+    line-height: 1.25;
+  }
+
+  .sandbox-kicker {
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .sandbox-body {
+    gap: 10px;
+    font-size: 12px;
+  }
+
+  .sandbox-actions {
+    gap: 6px;
+  }
+
+  .sandbox-chip {
+    min-height: 24px;
+    padding: 2px 8px;
+    font-size: 11px;
+  }
+
+  [class*="-records-panel"],
+  [class*="-table-wrap"],
+  [class*="-tableWrap"],
+  [class*="-table-card"],
+  [class*="-section--table"] {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 }
 

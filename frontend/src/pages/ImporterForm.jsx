@@ -233,7 +233,7 @@ export default function ImporterForm() {
       <section className="importer-records-panel" aria-label={t.importers}>
         <h3>{t.importers}</h3>
         <div className="importer-records-table-wrap">
-        <table className="smart-table importer-records-table">
+        <table className="smart-table smart-table--stack importer-records-table">
           <thead>
             <tr>
               <th>{t.company}</th><th>TIN</th><th>{t.contact}</th><th>{t.phone}</th><th>{t.email}</th><th>{t.sector}</th>

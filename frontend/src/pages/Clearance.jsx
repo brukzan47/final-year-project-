@@ -375,7 +375,7 @@ export default function Clearance() {
           </div>
 
           <div className="clearance-page-table-wrap">
-            <table className="smart-table" style={{ borderCollapse: "collapse", width: "100%" }}>
+            <table className="smart-table smart-table--stack" style={{ borderCollapse: "collapse", width: "100%" }}>
               <thead>
                 <tr>
                   <th>{tx.declaration}</th>

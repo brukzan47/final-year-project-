@@ -31,6 +31,18 @@ code {
 .smart-table td,
 .smart-table th {
   vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.smart-table {
+  max-width: 100%;
+}
+
+.smart-table button,
+.smart-table a {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 /* Utility: monospace font */
@@ -41,5 +53,90 @@ code {
 /* Utility: prevent wrapping */
 .nowrap {
   white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  .smart-table--stack {
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+  }
+
+  .smart-table--stack thead {
+    display: none;
+  }
+
+  .smart-table--stack,
+  .smart-table--stack tbody,
+  .smart-table--stack tr,
+  .smart-table--stack td {
+    display: block;
+    width: 100%;
+  }
+
+  .smart-table--stack tr {
+    margin-bottom: 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #ffffff;
+    overflow: hidden;
+  }
+
+  .smart-table--stack tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .smart-table--stack td {
+    display: grid !important;
+    grid-template-columns: minmax(92px, 36%) minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+    min-height: 38px;
+    padding: 9px 10px !important;
+    border-bottom: 1px solid #eef2f7 !important;
+    text-align: left !important;
+    font-size: 12px !important;
+    color: #14213d;
+    overflow-wrap: anywhere;
+  }
+
+  .smart-table--stack td:last-child {
+    border-bottom: 0 !important;
+  }
+
+  .smart-table--stack td::before {
+    content: attr(data-label);
+    color: #64748b;
+    font-weight: 800;
+    line-height: 1.25;
+  }
+
+  .smart-table--stack td[colspan] {
+    display: block !important;
+    color: #64748b;
+  }
+
+  .smart-table--stack td[colspan]::before {
+    display: none;
+  }
+
+  .smart-table--stack td > * {
+    min-width: 0;
+  }
+
+  .smart-table--stack td > span,
+  .smart-table--stack td > div {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .smart-table--stack td button,
+  .smart-table--stack td a {
+    min-height: 34px;
+    max-width: 100%;
+  }
+
+  .smart-table--stack .row-click {
+    cursor: pointer;
+  }
 }
 
