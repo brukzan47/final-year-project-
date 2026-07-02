@@ -56,15 +56,21 @@ code {
 }
 
 @media (max-width: 760px) {
+  .smart-table,
   .smart-table--stack {
     border-collapse: separate !important;
     border-spacing: 0 !important;
   }
 
+  .smart-table thead,
   .smart-table--stack thead {
     display: none;
   }
 
+  .smart-table,
+  .smart-table tbody,
+  .smart-table tr,
+  .smart-table td,
   .smart-table--stack,
   .smart-table--stack tbody,
   .smart-table--stack tr,
@@ -73,11 +79,13 @@ code {
     width: 100%;
   }
 
+  .smart-table tbody,
   .smart-table--stack tbody {
     display: grid;
     gap: 12px;
   }
 
+  .smart-table tr,
   .smart-table--stack tr {
     margin-bottom: 0;
     border: 1px solid #cbd5e1;
@@ -87,10 +95,12 @@ code {
     overflow: hidden;
   }
 
+  .smart-table tr:last-child,
   .smart-table--stack tr:last-child {
     margin-bottom: 0;
   }
 
+  .smart-table td,
   .smart-table--stack td {
     display: grid !important;
     grid-template-columns: minmax(0, 1fr);
@@ -98,7 +108,8 @@ code {
     align-items: start;
     min-height: 44px;
     padding: 10px 12px !important;
-    border-bottom: 1px solid #cbd5e1 !important;
+    border-top: 0 !important;
+    border-bottom: 0 !important;
     text-align: left !important;
     font-size: 13px !important;
     line-height: 1.35;
@@ -106,14 +117,17 @@ code {
     overflow-wrap: anywhere;
   }
 
+  .smart-table td:last-child,
   .smart-table--stack td:last-child {
     border-bottom: 0 !important;
   }
 
+  .smart-table td + td,
   .smart-table--stack td + td {
-    border-top: 0 !important;
+    border-top: 1px solid #94a3b8 !important;
   }
 
+  .smart-table td::before,
   .smart-table--stack td::before {
     content: attr(data-label);
     color: #64748b;
@@ -125,19 +139,23 @@ code {
     text-transform: uppercase;
   }
 
+  .smart-table td[colspan],
   .smart-table--stack td[colspan] {
     display: block !important;
     color: #64748b;
   }
 
+  .smart-table td[colspan]::before,
   .smart-table--stack td[colspan]::before {
     display: none;
   }
 
+  .smart-table td > *,
   .smart-table--stack td > * {
     min-width: 0;
   }
 
+  .smart-table td > span,
   .smart-table--stack td > span {
     display: inline-flex;
     flex-wrap: wrap;
@@ -146,6 +164,7 @@ code {
     min-width: 0;
   }
 
+  .smart-table td > div,
   .smart-table--stack td > div {
     display: grid;
     gap: 4px;
@@ -153,12 +172,15 @@ code {
     min-width: 0;
   }
 
+  .smart-table td button,
+  .smart-table td a,
   .smart-table--stack td button,
   .smart-table--stack td a {
     min-height: 34px;
     max-width: 100%;
   }
 
+  .smart-table .row-click,
   .smart-table--stack .row-click {
     cursor: pointer;
   }
