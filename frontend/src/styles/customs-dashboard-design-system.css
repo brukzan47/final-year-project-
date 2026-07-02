@@ -1248,4 +1248,18 @@
   .locations-page-tableWrap {
     overflow-x: auto !important;
   }
+
+  .declaration-form-page-table-wrap .smart-table,
+  .declarations-admin-table-wrap .smart-table,
+  .declaration-documents-view .smart-table {
+    width: max-content !important;
+    min-width: 980px !important;
+    table-layout: auto !important;
+  }
+
+  .declaration-form-page-table-wrap,
+  .declarations-admin-table-wrap,
+  .declaration-documents-view {
+    overflow-x: auto !important;
+  }
 }
