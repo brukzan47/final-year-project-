@@ -65,6 +65,7 @@ export default function DeclarationForm() {
   const [declFilter, setDeclFilter] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [formErrors, setFormErrors] = useState({});
 
   const [docsOpen, setDocsOpen] = useState(false);
   const [docsDeclId, setDocsDeclId] = useState("");
@@ -181,14 +182,38 @@ export default function DeclarationForm() {
     }
   }, [items, declFilter]);
 
-  const onField = useCallback((k, v) => setForm((prev) => ({ ...prev, [k]: v })), []);
+  const onField = useCallback((k, v) => {
+    setForm((prev) => ({ ...prev, [k]: v }));
+    setFormErrors((prev) => {
+      if (!prev[k]) return prev;
+      const next = { ...prev };
+      delete next[k];
+      return next;
+    });
+  }, []);
+
+  const validateDeclaration = useCallback(() => {
+    const next = {};
+    if (!form.shipment_id) next.shipment_id = t("pleaseSelectShipment");
+    if (form.tariff_rate === "" || form.tariff_rate === null || form.tariff_rate === undefined) {
+      next.tariff_rate = t("tariffRateRequired");
+    } else if (!Number.isFinite(Number(form.tariff_rate))) {
+      next.tariff_rate = t("invalidNumber");
+    }
+    if (form.duties_etb !== "" && !Number.isFinite(Number(form.duties_etb))) {
+      next.duties_etb = t("invalidNumber");
+    }
+    setFormErrors(next);
+    return next;
+  }, [form.shipment_id, form.tariff_rate, form.duties_etb, t]);
 
   const submit = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (!form.shipment_id) {
-      setError(t("pleaseSelectShipment"));
+    const validationErrors = validateDeclaration();
+    if (Object.keys(validationErrors).length > 0) {
+      setError(t("pleaseCompleteRequiredFields"));
       return;
     }
 
@@ -306,10 +331,16 @@ export default function DeclarationForm() {
         <div className="eu-grid two">
           <label className="eu-field">
             <span>{t("shipment")}</span>
-            <select value={form.shipment_id} onChange={(e) => onField("shipment_id", e.target.value)}>
+            <select
+              className={formErrors.shipment_id ? "is-invalid" : ""}
+              aria-invalid={formErrors.shipment_id ? "true" : "false"}
+              value={form.shipment_id}
+              onChange={(e) => onField("shipment_id", e.target.value)}
+            >
               <option value="">{t("selectShipment")}</option>
               {shipmentOptionNodes}
             </select>
+            {formErrors.shipment_id && <small className="err">{formErrors.shipment_id}</small>}
             {availableShipments.length === 0 && (
               <small style={{ color: "#6b7c93" }}>{t("allShipmentsAlreadyDeclared")}</small>
             )}
@@ -373,7 +404,9 @@ export default function DeclarationForm() {
           <label className="eu-field">
             <span>{t("tariffRatePercent")}</span>
             <select
-              value={TARIFF_OPTIONS.includes(String(form.tariff_rate)) ? String(form.tariff_rate) : "custom"}
+              className={formErrors.tariff_rate ? "is-invalid" : ""}
+              aria-invalid={formErrors.tariff_rate ? "true" : "false"}
+              value={form.tariff_rate === "" ? "" : (TARIFF_OPTIONS.includes(String(form.tariff_rate)) ? String(form.tariff_rate) : "custom")}
               onChange={(e) => {
                 const v = e.target.value;
                 if (v === "custom") return;
@@ -383,18 +416,35 @@ export default function DeclarationForm() {
               <option value="">{t("selectRate")}</option>
               {tariffOptionNodes}
             </select>
+            {formErrors.tariff_rate && <small className="err">{formErrors.tariff_rate}</small>}
           </label>
 
           {(!TARIFF_OPTIONS.includes(String(form.tariff_rate)) || form.tariff_rate === "custom") && (
             <label className="eu-field">
               <span>{t("customTariffPercent")}</span>
-              <input type="number" step="0.01" value={form.tariff_rate} onChange={(e) => onField("tariff_rate", e.target.value)} />
+              <input
+                className={formErrors.tariff_rate ? "is-invalid" : ""}
+                aria-invalid={formErrors.tariff_rate ? "true" : "false"}
+                type="number"
+                step="0.01"
+                value={form.tariff_rate}
+                onChange={(e) => onField("tariff_rate", e.target.value)}
+              />
             </label>
           )}
 
           <label className="eu-field">
             <span>{t("dutiesEtb")}</span>
-            <input type="number" step="0.01" value={form.duties_etb} onChange={(e) => onField("duties_etb", e.target.value)} placeholder={t("optionalManualAmount")} />
+            <input
+              className={formErrors.duties_etb ? "is-invalid" : ""}
+              aria-invalid={formErrors.duties_etb ? "true" : "false"}
+              type="number"
+              step="0.01"
+              value={form.duties_etb}
+              onChange={(e) => onField("duties_etb", e.target.value)}
+              placeholder={t("optionalManualAmount")}
+            />
+            {formErrors.duties_etb && <small className="err">{formErrors.duties_etb}</small>}
           </label>
 
           <label className="eu-field">

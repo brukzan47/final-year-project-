@@ -184,6 +184,15 @@
   background: #fff;
 }
 
+.eu-field input.is-invalid,
+.eu-field select.is-invalid,
+.eu-field input[aria-invalid="true"],
+.eu-field select[aria-invalid="true"] {
+  border-color: #b42318;
+  background: #fff5f5;
+  box-shadow: 0 0 0 3px rgba(180, 35, 24, 0.12);
+}
+
 .eu-field small.ok {
   color: #1f7a43;
 }

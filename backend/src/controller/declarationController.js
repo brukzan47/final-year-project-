@@ -33,8 +33,27 @@ export const getDeclarations = async (req, res) => {
 export const createDeclaration = async (req, res) => {
   try {
     const body = { ...(req.body || {}) };
+    const emptyToNull = (value) => (typeof value === "string" && value.trim() === "" ? null : value);
+    const numericOrNull = (value) => {
+      const normalized = emptyToNull(value);
+      if (normalized === null || normalized === undefined) return null;
+      const number = Number(normalized);
+      return Number.isFinite(number) ? number : normalized;
+    };
+
     if (typeof body.declaration_no === 'string') body.declaration_no = body.declaration_no.trim().toUpperCase();
+    body.declarant_agent = emptyToNull(body.declarant_agent);
+    body.customs_station = emptyToNull(body.customs_station);
+    body.valuation_basis = emptyToNull(body.valuation_basis);
+    body.payment_receipt_no = emptyToNull(body.payment_receipt_no);
+    body.tariff_rate = numericOrNull(body.tariff_rate);
+    body.duties_etb = numericOrNull(body.duties_etb);
     if (!body.shipment_id) return res.status(400).json({ message: 'shipment_id is required' });
+    if (body.tariff_rate === null) return res.status(400).json({ message: 'tariff_rate is required' });
+    if (!Number.isFinite(Number(body.tariff_rate))) return res.status(400).json({ message: 'tariff_rate must be a valid number' });
+    if (body.duties_etb !== null && !Number.isFinite(Number(body.duties_etb))) {
+      return res.status(400).json({ message: 'duties_etb must be a valid number' });
+    }
     {
       const shipmentExists = await pool.query(`SELECT shipment_id FROM shipments WHERE shipment_id=$1 LIMIT 1`, [body.shipment_id]);
       if (shipmentExists.rowCount === 0) return res.status(404).json({ message: 'Shipment not found' });
@@ -90,8 +109,8 @@ export const createDeclaration = async (req, res) => {
           [body.shipment_id]
         );
         const cifUsd = Number(shipmentRow.rows?.[0]?.cif_value_usd);
-        const tariffRate = Number(body.tariff_rate);
-        const declaredDuty = Number(body.duties_etb);
+        const tariffRate = body.tariff_rate === null ? NaN : Number(body.tariff_rate);
+        const declaredDuty = body.duties_etb === null ? NaN : Number(body.duties_etb);
         const fxRate = Number(process.env.DEFAULT_EXCHANGE_RATE || 130);
 
         let cifEtb = null;
