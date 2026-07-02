@@ -4066,6 +4066,25 @@ footer,
   margin-top: 0;
 }
 
+.declaration-form-page-submit-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 8;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px -12px -12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.96);
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 -12px 24px rgba(15, 23, 42, 0.08);
+}
+
+.declaration-form-page-submit-bar .eu-btn {
+  min-width: 170px;
+  min-height: 44px;
+}
+
 .declaration-form-page-filter-row {
   display: flex;
   gap: 10px;
@@ -4247,6 +4266,16 @@ button.risk-tag {
 
   .declaration-form-page-actions,
   .declaration-form-page-actions .eu-btn {
+    width: 100%;
+  }
+
+  .declaration-form-page-submit-bar {
+    margin-left: -6px;
+    margin-right: -6px;
+    justify-content: stretch;
+  }
+
+  .declaration-form-page-submit-bar .eu-btn {
     width: 100%;
   }
 }

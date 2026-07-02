@@ -410,9 +410,13 @@ export default function DeclarationForm() {
           <div>{t("estimatedDutyEtb")}: {Math.round(calcPreview.estDuty).toLocaleString()}</div>
         </div>
 
-        <div className="eu-nav" style={{ justifyContent: "space-between" }}>
-          <button type="button" className="eu-btn" onClick={() => navigate("/shipments")}>{t("addDeclaration")}</button>
-          <button type="submit" className="eu-btn primary" disabled={!canSubmit}>{loading ? t("submitting") : t("submitDeclaration")}</button>
+        <div className="eu-nav declaration-form-page-submit-bar">
+          <button type="submit" className="eu-btn primary" disabled={!canSubmit}>
+            {loading ? t("submitting") : t("addDeclaration")}
+          </button>
+          <button type="submit" className="eu-btn" disabled={!canSubmit}>
+            {loading ? t("submitting") : t("submitDeclaration")}
+          </button>
         </div>
 
         {error && <div className="err">{error}</div>}
