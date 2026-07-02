@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { DeclarationsAPI } from "../api/declarationAPI.js";
 import { ShipmentsAPI } from "../api/shipmentAPI.js";
@@ -103,7 +103,7 @@ export default function DeclarationForm() {
     };
   }, [selectedShipment, form.tariff_rate, form?.duties_etb]);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       setError("");
       const [decls, ships] = await Promise.all([DeclarationsAPI.list(), ShipmentsAPI.list()]);
@@ -113,11 +113,11 @@ export default function DeclarationForm() {
       setError(e.message || t("failedToLoadDeclarations"));
       toast?.error?.(e.message || t("failedToLoadDeclarations"));
     }
-  };
+  }, [t, toast]);
 
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
 
   useEffect(() => {
     if (form.shipment_id && declaredShipmentIds.has(String(form.shipment_id))) {
@@ -184,7 +184,7 @@ export default function DeclarationForm() {
     }
   };
 
-  const openDocs = async (declarationId) => {
+  const openDocs = useCallback(async (declarationId) => {
     setDocsOpen(true);
     setDocsDeclId(declarationId);
     setDocsErr("");
@@ -195,7 +195,7 @@ export default function DeclarationForm() {
     } catch (e) {
       setDocsErr(e.message || t("failedToLoadDocuments"));
     }
-  };
+  }, [t]);
 
   const openDocument = async (doc) => {
     try {
@@ -208,10 +208,35 @@ export default function DeclarationForm() {
     }
   };
 
-  const filteredItems = useMemo(() => {
-    if (!declFilter) return items;
-    return items.filter((i) => String(i.declaration_id) === String(declFilter));
-  }, [items, declFilter]);
+  const clearDeclFilter = useCallback(() => {
+    setDeclFilter("");
+    navigate({ search: "" });
+  }, [navigate]);
+
+  const uploadDeclarationDocs = useCallback((declarationId) => {
+    navigate(`/file-upload?declaration_id=${declarationId}`);
+  }, [navigate]);
+
+  const approveDeclaration = useCallback(async (declarationId) => {
+    try {
+      await DeclarationsAPI.approve(declarationId);
+      await load();
+      toast?.success?.(t("declarationApproved"));
+    } catch (e) {
+      toast?.error?.(e.message || t("approveFailed"));
+    }
+  }, [load, t, toast]);
+
+  const rejectDeclaration = useCallback(async (declarationId) => {
+    const reason = window.prompt(t("rejectionReasonOptional")) || "";
+    try {
+      await DeclarationsAPI.reject(declarationId, reason);
+      await load();
+      toast?.success?.(t("declarationRejected"));
+    } catch (e) {
+      toast?.error?.(e.message || t("rejectFailed"));
+    }
+  }, [load, t, toast]);
 
   return (
     <div className="declaration-form-page-shell">
@@ -362,110 +387,19 @@ export default function DeclarationForm() {
         {error && <div className="err">{error}</div>}
       </form>
 
-      <div className="declaration-form-page-section declaration-form-page-section--registry">
-        <div className="declaration-form-page-section-head declaration-form-page-section-head--tight">
-          <div>
-            <div className="declaration-form-page-kicker">{t("declarationsRegistry")}</div>
-            <h3 className="declaration-form-page-subtitle">{t("declarationsRegistry")}</h3>
-          </div>
-        </div>
-        <div className="declaration-form-page-filter-row">
-          <input
-            value={declFilter}
-            onChange={(e) => setDeclFilter(e.target.value)}
-            placeholder={t("filterByDeclarationId")}
-            className="declaration-form-page-filter"
-          />
-          {!!declFilter && (
-            <button type="button" className="eu-btn" onClick={() => { setDeclFilter(""); navigate({ search: "" }); }}>
-              {t("clear")}
-            </button>
-          )}
-        </div>
-
-        <div className="declaration-form-page-table-wrap">
-          <table className="smart-table smart-table--stack" style={{ borderCollapse: "collapse", width: "100%" }}>
-            <thead>
-              <tr>
-                <th>{t("declarationNo")}</th>
-                <th>{t("dateShort")}</th>
-                <th>{t("tariffPercent")}</th>
-                <th>{t("dutiesEtb")}</th>
-                <th>{t("shipment")}</th>
-                <th>{t("importer")}</th>
-                <th>{t("risk")}</th>
-                <th>{t("status")}</th>
-                <th>{t("actions")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredItems.map((i) => {
-                const isHighlight = declFilter && String(i.declaration_id) === String(declFilter);
-                return (
-                  <tr
-                    key={i.declaration_id || i.declaration_no}
-                    ref={isHighlight ? highlightRef : null}
-                    style={isHighlight ? { outline: "2px solid #2c65a5", background: "#eef5fd" } : {}}
-                  >
-                    <td>{i.declaration_no}</td>
-                    <td>{i.declaration_date}</td>
-                    <td>{i.tariff_rate}</td>
-                    <td>{i.duties_etb}</td>
-                    <td>{i.shipment_reference}</td>
-                    <td>{i.company_name}</td>
-                    <td><RiskBadge channel={i.risk_channel || "Green"} score={Number(i.risk_score || 0)} /></td>
-                    <td><StatusBadge status={i.status || "Pending"} /></td>
-                    <td style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                      <button type="button" className="eu-btn" onClick={() => openDocs(i.declaration_id)}>{t("documents")}</button>
-                      <button type="button" className="eu-btn" onClick={() => navigate(`/file-upload?declaration_id=${i.declaration_id}`)}>{t("upload")}</button>
-                      {(role === "Admin" || role === "Super Admin" || role === "Customs Officer") && (
-                        <>
-                          <button
-                            type="button"
-                            className="eu-btn"
-                            onClick={async () => {
-                              try {
-                                await DeclarationsAPI.approve(i.declaration_id);
-                                await load();
-                                toast?.success?.(t("declarationApproved"));
-                              } catch (e) {
-                                toast?.error?.(e.message || t("approveFailed"));
-                              }
-                            }}
-                          >
-                            {t("approve")}
-                          </button>
-                          <button
-                            type="button"
-                            className="eu-btn"
-                            onClick={async () => {
-                              const reason = window.prompt(t("rejectionReasonOptional")) || "";
-                              try {
-                                await DeclarationsAPI.reject(i.declaration_id, reason);
-                                await load();
-                                toast?.success?.(t("declarationRejected"));
-                              } catch (e) {
-                                toast?.error?.(e.message || t("rejectFailed"));
-                              }
-                            }}
-                          >
-                            {t("reject")}
-                          </button>
-                        </>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-              {filteredItems.length === 0 && (
-                <tr>
-                  <td colSpan="9">{t("noDeclarationRecordsFound")}</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <DeclarationRegistry
+        items={items}
+        declFilter={declFilter}
+        onFilterChange={setDeclFilter}
+        onClearFilter={clearDeclFilter}
+        role={role}
+        highlightRef={highlightRef}
+        onOpenDocs={openDocs}
+        onUploadDocs={uploadDeclarationDocs}
+        onApprove={approveDeclaration}
+        onReject={rejectDeclaration}
+        t={t}
+      />
 
       <Modal open={docsOpen} title={t("declarationDocuments")} onClose={() => setDocsOpen(false)}>
         <div style={{ display: "grid", gap: 10 }}>
@@ -565,9 +499,106 @@ export default function DeclarationForm() {
   );
 }
 
+const DeclarationRegistry = React.memo(function DeclarationRegistry({
+  items,
+  declFilter,
+  onFilterChange,
+  onClearFilter,
+  role,
+  highlightRef,
+  onOpenDocs,
+  onUploadDocs,
+  onApprove,
+  onReject,
+  t,
+}) {
+  const filteredItems = useMemo(() => {
+    if (!declFilter) return items;
+    return items.filter((i) => String(i.declaration_id) === String(declFilter));
+  }, [items, declFilter]);
 
+  const canReview = role === "Admin" || role === "Super Admin" || role === "Customs Officer";
 
+  return (
+    <div className="declaration-form-page-section declaration-form-page-section--registry">
+      <div className="declaration-form-page-section-head declaration-form-page-section-head--tight">
+        <div>
+          <div className="declaration-form-page-kicker">{t("declarationsRegistry")}</div>
+          <h3 className="declaration-form-page-subtitle">{t("declarationsRegistry")}</h3>
+        </div>
+      </div>
+      <div className="declaration-form-page-filter-row">
+        <input
+          value={declFilter}
+          onChange={(e) => onFilterChange(e.target.value)}
+          placeholder={t("filterByDeclarationId")}
+          className="declaration-form-page-filter"
+        />
+        {!!declFilter && (
+          <button type="button" className="eu-btn" onClick={onClearFilter}>
+            {t("clear")}
+          </button>
+        )}
+      </div>
 
-
-
+      <div className="declaration-form-page-table-wrap">
+        <table className="smart-table smart-table--stack" style={{ borderCollapse: "collapse", width: "100%" }}>
+          <thead>
+            <tr>
+              <th>{t("declarationNo")}</th>
+              <th>{t("dateShort")}</th>
+              <th>{t("tariffPercent")}</th>
+              <th>{t("dutiesEtb")}</th>
+              <th>{t("shipment")}</th>
+              <th>{t("importer")}</th>
+              <th>{t("risk")}</th>
+              <th>{t("status")}</th>
+              <th>{t("actions")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredItems.map((i) => {
+              const isHighlight = declFilter && String(i.declaration_id) === String(declFilter);
+              return (
+                <tr
+                  key={i.declaration_id || i.declaration_no}
+                  ref={isHighlight ? highlightRef : null}
+                  style={isHighlight ? { outline: "2px solid #2c65a5", background: "#eef5fd" } : {}}
+                >
+                  <td>{i.declaration_no}</td>
+                  <td>{i.declaration_date}</td>
+                  <td>{i.tariff_rate}</td>
+                  <td>{i.duties_etb}</td>
+                  <td>{i.shipment_reference}</td>
+                  <td>{i.company_name}</td>
+                  <td><RiskBadge channel={i.risk_channel || "Green"} score={Number(i.risk_score || 0)} /></td>
+                  <td><StatusBadge status={i.status || "Pending"} /></td>
+                  <td style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    <button type="button" className="eu-btn" onClick={() => onOpenDocs(i.declaration_id)}>{t("documents")}</button>
+                    <button type="button" className="eu-btn" onClick={() => onUploadDocs(i.declaration_id)}>{t("upload")}</button>
+                    {canReview && (
+                      <>
+                        <button type="button" className="eu-btn" onClick={() => onApprove(i.declaration_id)}>
+                          {t("approve")}
+                        </button>
+                        <button type="button" className="eu-btn" onClick={() => onReject(i.declaration_id)}>
+                          {t("reject")}
+                        </button>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+            {filteredItems.length === 0 && (
+              <tr>
+                <td colSpan="9">{t("noDeclarationRecordsFound")}</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+});
 
