@@ -1,6 +1,7 @@
 import { api } from "./client.js";
 
 export const DocumentsAPI = {
+  list: () => api.get("/documents"),
   listByDeclaration: (declaration_id) => api.get(`/documents?declaration_id=${encodeURIComponent(declaration_id)}`),
   uploadBatch: (formData) => api.postForm('/documents/batch', formData),
   upload: (formData) => api.postForm('/documents', formData),

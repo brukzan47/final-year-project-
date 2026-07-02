@@ -33,6 +33,8 @@ export default function FileUpload() {
   const [ok, setOk] = useState("");
   const [verif, setVerif] = useState(null);
   const [attached, setAttached] = useState([]);
+  const [allUploaded, setAllUploaded] = useState([]);
+  const [loadingDocs, setLoadingDocs] = useState(false);
   const [verifyingId, setVerifyingId] = useState("");
   const [anchoringId, setAnchoringId] = useState("");
   const [loading, setLoading] = useState(false);
@@ -48,6 +50,23 @@ export default function FileUpload() {
   const [docPreviewLoading, setDocPreviewLoading] = useState(false);
 
   const [loadingDecls, setLoadingDecls] = useState(true);
+
+  async function loadAllDocuments() {
+    try {
+      setLoadingDocs(true);
+      const list = await DocumentsAPI.list();
+      setAllUploaded(Array.isArray(list) ? list : []);
+    } catch {
+      setAllUploaded([]);
+    } finally {
+      setLoadingDocs(false);
+    }
+  }
+
+  useEffect(() => {
+    loadAllDocuments();
+  }, []);
+
   useEffect(() => {
     (async () => {
       try { const decls = await DeclarationsAPI.list(); setDeclarations(Array.isArray(decls) ? decls : []); } catch {}
@@ -196,13 +215,22 @@ export default function FileUpload() {
         setOk(`${uploadedCount} document(s) uploaded`);
       }
       const list = await DocumentsAPI.listByDeclaration(declarationId); setAttached(Array.isArray(list) ? list : []);
+      await loadAllDocuments();
       const v = await DocumentsAPI.verify(declarationId); setVerif(v);
       setFiles({}); const formEl = document.getElementById('fileupload-form'); try { formEl?.reset?.(); } catch {}
     } catch (e2) { setErr(e2.message || t.uploadFailed); } finally { setLoading(false); }
   };
 
   async function anchorDoc(id) {
-    try { setAnchoringId(id); await DocumentsAPI.anchor(id); const list = await DocumentsAPI.listByDeclaration(declarationId); setAttached(Array.isArray(list) ? list : []); }
+    try {
+      setAnchoringId(id);
+      await DocumentsAPI.anchor(id);
+      if (declarationId) {
+        const list = await DocumentsAPI.listByDeclaration(declarationId);
+        setAttached(Array.isArray(list) ? list : []);
+      }
+      await loadAllDocuments();
+    }
     catch (e) { alert(e.message || t.anchorFailed); }
     finally { setAnchoringId(""); }
   }
@@ -243,6 +271,7 @@ export default function FileUpload() {
 
   const docColumns = [
     { key: "title", label: t.title },
+    { key: "declaration_id", label: t.declaration, render: (a) => String(a.declaration_id || "-").slice(0, 8) },
     { key: "file_name", label: t.file, render: (a) => (<button type="button" onClick={() => openDocument(a)}>{a.file_name}</button>) },
     { key: "file_type", label: t.type },
     { key: "file_size", label: t.size },
@@ -273,6 +302,64 @@ export default function FileUpload() {
       )
     },
   ];
+
+  const uploadedRows = allUploaded.length > 0 || !declarationId ? allUploaded : attached;
+  const recordsLoading = loadingDocs || (declarationId && loading);
+
+  const uploadedRecords = (
+    <div className="fileupload-records">
+      <h3 className="fileupload-records__title">{t.fullUploadedRecords || t.attachedDocs}</h3>
+      {recordsLoading && (
+        <div style={{ paddingTop: 8 }}><SkeletonTable rows={3} cols={6} /></div>
+      )}
+      {uploadedRows.length === 0 && !recordsLoading && (
+        <EmptyState title={t.noAttachments} description={t.noAttachmentsDesc} />
+      )}
+      {uploadedRows.length > 0 && (
+        <div className="fileupload-documents-view">
+          <DataTable columns={docColumns} rows={uploadedRows} dense emptyText={t.noAttachments} />
+          <div className={`document-preview-box document-preview-box--${docPreviewSize}`}>
+            <div className="document-preview-toolbar">
+              <div>
+                <div className="document-preview-title">{docPreview?.name || t.documentPreview}</div>
+                <div className="document-preview-meta">{docPreview?.type || t.selectDocumentToPreview}</div>
+              </div>
+              <div className="document-preview-actions">
+                {docPreview?.url && (
+                  <a href={docPreview.url} target="_blank" rel="noreferrer">{t.openNewTab}</a>
+                )}
+                <button type="button" onClick={() => setDocPreviewSize("mini")} disabled={docPreviewSize === "mini"}>{t.mini}</button>
+                <button type="button" onClick={() => setDocPreviewSize("max")} disabled={docPreviewSize === "max"}>{t.max}</button>
+              </div>
+            </div>
+            <div className="document-preview-frame">
+              {docPreviewLoading && <div className="document-preview-empty">{t.loadingDocument}</div>}
+              {!docPreviewLoading && !docPreview && <div className="document-preview-empty">{t.selectDocumentToPreview}</div>}
+              {!docPreviewLoading && docPreview && String(docPreview.type || "").toLowerCase().startsWith("image/") && (
+                <img src={docPreview.url} alt={docPreview.name} />
+              )}
+              {!docPreviewLoading && docPreview && !String(docPreview.type || "").toLowerCase().startsWith("image/") && (
+                <iframe title={docPreview.name} src={docPreview.url} />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+      {Object.keys(ocrMap).length > 0 && (
+        <div className="fileupload-ocr-records">
+          <div className="fileupload-ocr-records__title">{t.ocrExtracts}</div>
+          {uploadedRows.filter(a => ocrMap[a.document_id]).map((a) => (
+            <div key={a.document_id} className="fileupload-ocr-record">
+              <div className="fileupload-ocr-record__name">{a.file_name}</div>
+              <div className="fileupload-ocr-record__body">
+                <JsonTree data={ocrMap[a.document_id] || {}} defaultOpenDepth={2} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="fileupload-page">
@@ -345,6 +432,7 @@ export default function FileUpload() {
               {loading ? t.uploading : t.upload}
             </button>
           </form>
+          {uploadedRecords}
         </SandboxPanel>
       </div>
 
@@ -363,58 +451,6 @@ export default function FileUpload() {
         )}
       </div>
 
-      <div style={{ marginTop: 20 }}>
-        <h3>{t.attachedDocs}</h3>
-        {declarationId && loading && (
-          <div style={{ paddingTop: 8 }}><SkeletonTable rows={3} cols={6} /></div>
-        )}
-        {attached.length === 0 && !loading && (
-          <EmptyState title={t.noAttachments} description={t.noAttachmentsDesc} />
-        )}
-        {attached.length > 0 && (
-          <div className="fileupload-documents-view">
-            <DataTable columns={docColumns} rows={attached} dense emptyText={t.noAttachments} />
-            <div className={`document-preview-box document-preview-box--${docPreviewSize}`}>
-              <div className="document-preview-toolbar">
-                <div>
-                  <div className="document-preview-title">{docPreview?.name || t.documentPreview}</div>
-                  <div className="document-preview-meta">{docPreview?.type || t.selectDocumentToPreview}</div>
-                </div>
-                <div className="document-preview-actions">
-                  {docPreview?.url && (
-                    <a href={docPreview.url} target="_blank" rel="noreferrer">{t.openNewTab}</a>
-                  )}
-                  <button type="button" onClick={() => setDocPreviewSize("mini")} disabled={docPreviewSize === "mini"}>{t.mini}</button>
-                  <button type="button" onClick={() => setDocPreviewSize("max")} disabled={docPreviewSize === "max"}>{t.max}</button>
-                </div>
-              </div>
-              <div className="document-preview-frame">
-                {docPreviewLoading && <div className="document-preview-empty">{t.loadingDocument}</div>}
-                {!docPreviewLoading && !docPreview && <div className="document-preview-empty">{t.selectDocumentToPreview}</div>}
-                {!docPreviewLoading && docPreview && String(docPreview.type || "").toLowerCase().startsWith("image/") && (
-                  <img src={docPreview.url} alt={docPreview.name} />
-                )}
-                {!docPreviewLoading && docPreview && !String(docPreview.type || "").toLowerCase().startsWith("image/") && (
-                  <iframe title={docPreview.name} src={docPreview.url} />
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-        {Object.keys(ocrMap).length > 0 && (
-          <div style={{ marginTop: 12, border: '1px solid #e5e7eb', borderRadius: 6, padding: 10 }}>
-            <div style={{ fontWeight: 600, marginBottom: 6 }}>{t.ocrExtracts}</div>
-            {attached.filter(a => ocrMap[a.document_id]).map((a) => (
-              <div key={a.document_id} style={{ marginBottom: 10 }}>
-                <div style={{ fontSize: 12, color: '#6b7280' }}>{a.file_name}</div>
-                <div style={{ background:'#f8f9fa', border:'1px solid #e5e7eb', borderRadius:6, padding:8 }}>
-                  <JsonTree data={ocrMap[a.document_id] || {}} defaultOpenDepth={2} />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   );
 }
@@ -463,6 +499,7 @@ const EN = {
   complete: "Complete",
   missing: "Missing",
   attachedDocs: "Attached Documents",
+  fullUploadedRecords: "Full Uploaded Records",
   documentPreview: "Document Preview",
   selectDocumentToPreview: "Select a document to preview.",
   loadingDocument: "Loading document...",
@@ -516,6 +553,7 @@ const AM = {
   complete: "ተሟልቷል",
   missing: "የጎደለ",
   attachedDocs: "የተያያዙ ሰነዶች",
+  fullUploadedRecords: "Full Uploaded Records",
   documentPreview: "Document Preview",
   selectDocumentToPreview: "Select a document to preview.",
   loadingDocument: "Loading document...",

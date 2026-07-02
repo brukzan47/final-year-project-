@@ -1499,12 +1499,58 @@ button.primary {
 }
 
 .fileupload-page .fileupload-sandbox {
-  width: min(100%, 720px);
+  width: min(100%, 1180px);
   margin: 0 auto;
 }
 
 .fileupload-page .fileupload-sandbox .sandbox-panel {
   width: 100%;
+}
+
+.fileupload-records {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(15, 23, 42, 0.1);
+}
+
+.fileupload-records__title {
+  margin: 0;
+  color: #1f2937;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.fileupload-ocr-records {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px;
+  background: #ffffff;
+}
+
+.fileupload-ocr-records__title {
+  font-weight: 700;
+}
+
+.fileupload-ocr-record {
+  display: grid;
+  gap: 6px;
+}
+
+.fileupload-ocr-record__name {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.fileupload-ocr-record__body {
+  background: #f8f9fa;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 8px;
 }
 
 .fileupload-verification {
