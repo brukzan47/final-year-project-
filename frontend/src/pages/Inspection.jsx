@@ -217,8 +217,14 @@ export default function Inspection() {
               <div className="inspections-page-kicker">{t.newInspectionRecord}</div>
               <h3 className="inspections-page-subtitle">{t.newInspectionRecord}</h3>
             </div>
+            <div className="inspections-page-section-actions">
+              <button type="button" className="eu-btn" onClick={() => navigate("/declarations")}>{t.createDeclaration}</button>
+              <button type="submit" form="inspection-submit-form" className="eu-btn primary" disabled={loading}>
+                {loading ? t.saving : t.submitInspection}
+              </button>
+            </div>
           </div>
-          <form className="eu-card inspections-page-card" onSubmit={submit}>
+          <form id="inspection-submit-form" className="eu-card inspections-page-card" onSubmit={submit}>
             <p className="eu-help">{t.helpText}</p>
 
             <div className="eu-grid two">

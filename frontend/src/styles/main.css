@@ -3743,6 +3743,19 @@ footer,
   flex-wrap: wrap;
 }
 
+.inspections-page-section-actions,
+.clearance-page-section-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.inspections-page-section-actions .eu-btn,
+.clearance-page-section-actions .eu-btn {
+  min-width: 170px;
+}
+
 .inspections-page-section-head--tight {
   margin-bottom: 10px;
 }
@@ -3822,6 +3835,16 @@ footer,
 
   .inspections-page-section {
     padding: 14px;
+  }
+
+  .inspections-page-section-actions,
+  .clearance-page-section-actions {
+    width: 100%;
+  }
+
+  .inspections-page-section-actions .eu-btn,
+  .clearance-page-section-actions .eu-btn {
+    width: 100%;
   }
 
   .inspections-page-filter {

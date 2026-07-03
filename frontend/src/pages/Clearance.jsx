@@ -241,9 +241,15 @@ export default function Clearance() {
           </div>
         </div>
 
-        <form className="clearance-page-section clearance-page-card" onSubmit={submit}>
+        <form id="clearance-submit-form" className="clearance-page-section clearance-page-card" onSubmit={submit}>
           <div className="clearance-page-section-head clearance-page-section-head--tight">
             <h3 className="clearance-page-subtitle">{tx.newRecord}</h3>
+            <div className="clearance-page-section-actions">
+              <button type="button" className="eu-btn" onClick={() => navigate("/payments")}>{tx.openPayments}</button>
+              <button type="submit" form="clearance-submit-form" className="eu-btn primary" disabled={loading || (selectedReadiness && !selectedReadiness.ready_for_clearance)}>
+                {loading ? tx.saving : tx.submitClearance}
+              </button>
+            </div>
           </div>
           <p className="eu-help">{tx.releaseRule}</p>
 
