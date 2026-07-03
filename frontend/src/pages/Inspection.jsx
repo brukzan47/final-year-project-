@@ -334,9 +334,9 @@ export default function Inspection() {
               <div>{t.releaseReference}: {form.release_reference || "-"}</div>
             </div>
 
-            <div className="eu-nav" style={{ justifyContent: "space-between" }}>
+            <div className="eu-nav inspections-page-actions" style={{ justifyContent: "space-between" }}>
               <button type="button" className="eu-btn" onClick={() => navigate("/declarations")}>{t.createDeclaration}</button>
-              <button type="submit" className="eu-btn primary" disabled={loading}>{loading ? t.saving : t.saveInspection}</button>
+              <button type="submit" className="eu-btn primary" disabled={loading}>{loading ? t.saving : t.submitInspection}</button>
             </div>
 
             {error && <div className="err">{error}</div>}
@@ -482,6 +482,7 @@ const EN = {
   createDeclaration: "Create Declaration",
   saving: "Saving...",
   saveInspection: "Save Inspection",
+  submitInspection: "Submit Inspection",
   inspectionRegistry: "Inspection Registry",
   filterByDeclarationId: "Filter by declaration_id",
   clear: "Clear",
@@ -540,6 +541,7 @@ const AM = {
   createDeclaration: "áˆ˜áŒáˆˆáŒ« ááŒ áˆ­",
   saving: "á‰ áˆ›áˆµá‰€áˆ˜áŒ¥ áˆ‹á‹­...",
   saveInspection: "áˆáˆ­áˆ˜áˆ« áŠ áˆµá‰€áˆáŒ¥",
+  submitInspection: "áˆáˆ­áˆ˜áˆ« áˆáŠ­",
   inspectionRegistry: "á‹¨áˆáˆ­áˆ˜áˆ« áˆ˜á‹áŒˆá‰¥",
   filterByDeclarationId: "á‰ declaration_id áŠ áŒ£áˆ«",
   clear: "áŠ áŒ¥á‹",

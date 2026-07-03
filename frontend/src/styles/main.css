@@ -3923,6 +3923,24 @@ footer,
   justify-content: space-between;
 }
 
+.inspections-page-actions,
+.clearance-page-submit-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 8;
+  margin: 18px -12px -12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.96);
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 -12px 24px rgba(15, 23, 42, 0.08);
+}
+
+.inspections-page-actions .eu-btn,
+.clearance-page-submit-bar .eu-btn {
+  min-width: 170px;
+  min-height: 44px;
+}
+
 .clearance-page-filter-row {
   display: flex;
   gap: 10px;
@@ -3985,6 +4003,18 @@ footer,
   .clearance-page-actions {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .inspections-page-actions,
+  .clearance-page-submit-bar {
+    margin-left: -6px;
+    margin-right: -6px;
+    justify-content: stretch;
+  }
+
+  .inspections-page-actions .eu-btn,
+  .clearance-page-submit-bar .eu-btn {
+    width: 100%;
   }
 }
 

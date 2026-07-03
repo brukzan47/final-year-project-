@@ -346,10 +346,10 @@ export default function Clearance() {
             )}
           </div>
 
-          <div className="eu-nav clearance-page-actions">
+          <div className="eu-nav clearance-page-actions clearance-page-submit-bar">
             <button type="button" className="eu-btn" onClick={() => navigate("/payments")}>{tx.openPayments}</button>
             <button type="submit" className="eu-btn primary" disabled={loading || (selectedReadiness && !selectedReadiness.ready_for_clearance)}>
-              {loading ? tx.saving : tx.saveClearance}
+              {loading ? tx.saving : tx.submitClearance}
             </button>
           </div>
 
@@ -462,7 +462,7 @@ const EN = {
   officerName: "Officer Name", customsOffice: "Customs Office", deliveryNoteNumber: "Delivery Note Number",
   transportCompany: "Transport Company", truckPlate: "Truck Plate", destinationAddress: "Destination Address",
   releaseSnapshot: "Release Snapshot", readiness: "Readiness", deliveryNote: "Delivery Note", blockers: "Blockers",
-  openPayments: "Open Payments", saving: "Saving...", saveClearance: "Save Clearance",
+  openPayments: "Open Payments", saving: "Saving...", saveClearance: "Save Clearance", submitClearance: "Submit Clearance",
   registry: "Clearance Registry", filterByDeclarationId: "Filter by declaration_id", clear: "Clear",
   officer: "Officer", actions: "Actions", view: "View", downloading: "Downloading...", releaseNote: "Release Note",
   noRecords: "No clearance records found.", detailTitle: "Clearance Detail", loadingDetail: "Loading clearance detail...",
@@ -483,7 +483,7 @@ const AM = {
   officerName: "á‹¨áŠ¦áŠáˆ°áˆ­ áˆµáˆ", customsOffice: "á‹¨áŒ‰áˆáˆ©áŠ­ á‰¢áˆ®", deliveryNoteNumber: "á‹¨áˆ˜áˆá‰€á‰‚á‹« á‹ˆáˆ¨á‰€á‰µ á‰áŒ¥áˆ­",
   transportCompany: "á‹¨á‰µáˆ«áŠ•áˆµá–áˆ­á‰µ áŠ©á‰£áŠ•á‹«", truckPlate: "á‹¨á‰µáˆ«áŠ­ áˆ°áˆŒá‹³", destinationAddress: "á‹¨áˆ˜á‹µáˆ¨áˆ» áŠ á‹µáˆ«áˆ»",
   releaseSnapshot: "á‹¨áˆ˜áˆá‰€á‰‚á‹« áˆ›áŒ á‰ƒáˆˆá‹«", readiness: "á‹áŒáŒáŠá‰µ", deliveryNote: "á‹¨áˆ˜áˆá‰€á‰‚á‹« á‹ˆáˆ¨á‰€á‰µ", blockers: "áŠ¥áŠ•á‰…á‹á‰¶á‰½",
-  openPayments: "áŠ­áá‹«á‹Žá‰½áŠ• áŠ­áˆá‰µ", saving: "á‰ áˆ›áˆµá‰€áˆ˜áŒ¥ áˆ‹á‹­...", saveClearance: "áŠ­áˆŠáˆ«áŠ•áˆµ áŠ áˆµá‰€áˆáŒ¥",
+  openPayments: "áŠ­áá‹«á‹Žá‰½áŠ• áŠ­áˆá‰µ", saving: "á‰ áˆ›áˆµá‰€áˆ˜áŒ¥ áˆ‹á‹­...", saveClearance: "áŠ­áˆŠáˆ«áŠ•áˆµ áŠ áˆµá‰€áˆáŒ¥", submitClearance: "áŠ­áˆŠáˆ«áŠ•áˆµ áˆáŠ­",
   registry: "á‹¨áŠ­áˆŠáˆ«áŠ•áˆµ áˆ˜á‹áŒˆá‰¥", filterByDeclarationId: "á‰  declaration_id áŠ áŒ£áˆ«", clear: "áŠ áŒ¥á‹",
   officer: "áŠ¦áŠáˆ°áˆ­", actions: "áŠ¥áˆ­áˆáŒƒá‹Žá‰½", view: "áŠ¥á‹­á‰³", downloading: "á‰ áˆ›á‹áˆ¨á‹µ áˆ‹á‹­...", releaseNote: "á‹¨áˆ˜áˆá‰€á‰‚á‹« áˆ›áˆµá‰³á‹ˆá‰‚á‹«",
   noRecords: "á‹¨áŠ­áˆŠáˆ«áŠ•áˆµ áˆ˜á‹áŒˆá‰¥ áŠ áˆá‰°áŒˆáŠ˜áˆá¢", detailTitle: "á‹¨áŠ­áˆŠáˆ«áŠ•áˆµ á‹áˆ­á‹áˆ­", loadingDetail: "á‹¨áŠ­áˆŠáˆ«áŠ•áˆµ á‹áˆ­á‹áˆ­ á‰ áˆ˜áŒ«áŠ• áˆ‹á‹­...",
