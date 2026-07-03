@@ -3756,6 +3756,20 @@ footer,
   min-width: 170px;
 }
 
+.inspections-page-inline-actions,
+.clearance-page-inline-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 10px 0 14px;
+}
+
+.inspections-page-inline-actions .eu-btn,
+.clearance-page-inline-actions .eu-btn {
+  min-width: 170px;
+}
+
 .inspections-page-submit-bar,
 .clearance-page-submit-bar {
   position: fixed;
@@ -3874,6 +3888,16 @@ footer,
 
   .inspections-page-filter {
     min-width: 0;
+    width: 100%;
+  }
+
+  .inspections-page-inline-actions,
+  .clearance-page-inline-actions {
+    width: 100%;
+  }
+
+  .inspections-page-inline-actions .eu-btn,
+  .clearance-page-inline-actions .eu-btn {
     width: 100%;
   }
 

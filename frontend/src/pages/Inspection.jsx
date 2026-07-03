@@ -226,6 +226,12 @@ export default function Inspection() {
           </div>
           <form id="inspection-submit-form" className="eu-card inspections-page-card" onSubmit={submit}>
             <p className="eu-help">{t.helpText}</p>
+            <div className="inspections-page-inline-actions">
+              <button type="button" className="eu-btn" onClick={() => navigate("/declarations")}>{t.createDeclaration}</button>
+              <button type="submit" className="eu-btn primary" disabled={loading}>
+                {loading ? t.saving : t.submitInspection}
+              </button>
+            </div>
 
             <div className="eu-grid two">
               <label className="eu-field">

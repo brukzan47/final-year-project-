@@ -252,6 +252,12 @@ export default function Clearance() {
             </div>
           </div>
           <p className="eu-help">{tx.releaseRule}</p>
+          <div className="clearance-page-inline-actions">
+            <button type="button" className="eu-btn" onClick={() => navigate("/payments")}>{tx.openPayments}</button>
+            <button type="submit" className="eu-btn primary" disabled={loading || (selectedReadiness && !selectedReadiness.ready_for_clearance)}>
+              {loading ? tx.saving : tx.submitClearance}
+            </button>
+          </div>
 
           <div className="eu-grid two">
             <label className="eu-field">
