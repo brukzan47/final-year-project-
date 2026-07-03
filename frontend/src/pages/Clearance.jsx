@@ -246,6 +246,12 @@ export default function Clearance() {
             <h3 className="clearance-page-subtitle">{tx.newRecord}</h3>
           </div>
           <p className="eu-help">{tx.releaseRule}</p>
+          <div className="clearance-page-submit-actions clearance-page-submit-actions--top">
+            <button type="button" className="eu-btn" onClick={() => navigate("/payments")}>{tx.openPayments}</button>
+            <button type="submit" className="eu-btn primary" disabled={loading || (selectedReadiness && !selectedReadiness.ready_for_clearance)}>
+              {loading ? tx.saving : tx.submitClearance}
+            </button>
+          </div>
 
           <div className="eu-grid two">
             <label className="eu-field">
@@ -344,13 +350,6 @@ export default function Clearance() {
             {selectedReadiness && selectedReadiness.blockers?.length > 0 && (
               <div className="eu-review-row"><span>{tx.blockers}</span><strong>{selectedReadiness.blockers.join("; ")}</strong></div>
             )}
-          </div>
-
-          <div className="eu-nav clearance-page-submit-actions">
-            <button type="button" className="eu-btn" onClick={() => navigate("/payments")}>{tx.openPayments}</button>
-            <button type="submit" className="eu-btn primary" disabled={loading || (selectedReadiness && !selectedReadiness.ready_for_clearance)}>
-              {loading ? tx.saving : tx.submitClearance}
-            </button>
           </div>
 
           {error && <div className="err">{error}</div>}

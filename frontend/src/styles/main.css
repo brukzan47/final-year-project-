@@ -3806,6 +3806,12 @@ footer,
   background: #f8fbff;
 }
 
+.inspections-page-submit-actions--top,
+.clearance-page-submit-actions--top {
+  margin-top: 0;
+  margin-bottom: 14px;
+}
+
 .inspections-page-submit-actions .eu-btn,
 .clearance-page-submit-actions .eu-btn {
   min-width: 170px;

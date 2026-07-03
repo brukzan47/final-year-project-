@@ -220,6 +220,10 @@ export default function Inspection() {
           </div>
           <form id="inspection-submit-form" className="eu-card inspections-page-card" onSubmit={submit}>
             <p className="eu-help">{t.helpText}</p>
+            <div className="inspections-page-submit-actions inspections-page-submit-actions--top">
+              <button type="button" className="eu-btn" onClick={() => navigate("/declarations")}>{t.createDeclaration}</button>
+              <button type="submit" className="eu-btn primary" disabled={loading}>{loading ? t.saving : t.submitInspection}</button>
+            </div>
 
             <div className="eu-grid two">
               <label className="eu-field">
@@ -332,11 +336,6 @@ export default function Inspection() {
               <div>{t.assigned}: <RiskBadge channel={assignedChannel} score={assignedScore} /></div>
               <div>{t.selected}: <RiskBadge channel={form.risk_channel || "Green"} score={assignedScore} /></div>
               <div>{t.releaseReference}: {form.release_reference || "-"}</div>
-            </div>
-
-            <div className="eu-nav inspections-page-submit-actions" style={{ justifyContent: "space-between" }}>
-              <button type="button" className="eu-btn" onClick={() => navigate("/declarations")}>{t.createDeclaration}</button>
-              <button type="submit" className="eu-btn primary" disabled={loading}>{loading ? t.saving : t.submitInspection}</button>
             </div>
 
             {error && <div className="err">{error}</div>}
