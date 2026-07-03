@@ -503,8 +503,8 @@ export default function DeclarationForm() {
         t={t}
       />
 
-      <Modal open={docsOpen} title={t("declarationDocuments")} onClose={() => setDocsOpen(false)}>
-        <div style={{ display: "grid", gap: 10 }}>
+      <Modal open={docsOpen} title={t("declarationDocuments")} onClose={() => setDocsOpen(false)} variant="document">
+        <div className="declaration-documents-view" style={{ display: "grid", gap: 10 }}>
           {docsErr && <div className="err">{docsErr}</div>}
 
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
