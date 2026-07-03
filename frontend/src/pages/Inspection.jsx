@@ -217,21 +217,9 @@ export default function Inspection() {
               <div className="inspections-page-kicker">{t.newInspectionRecord}</div>
               <h3 className="inspections-page-subtitle">{t.newInspectionRecord}</h3>
             </div>
-            <div className="inspections-page-section-actions">
-              <button type="button" className="eu-btn" onClick={() => navigate("/declarations")}>{t.createDeclaration}</button>
-              <button type="submit" form="inspection-submit-form" className="eu-btn primary" disabled={loading}>
-                {loading ? t.saving : t.submitInspection}
-              </button>
-            </div>
           </div>
           <form id="inspection-submit-form" className="eu-card inspections-page-card" onSubmit={submit}>
             <p className="eu-help">{t.helpText}</p>
-            <div className="inspections-page-inline-actions">
-              <button type="button" className="eu-btn" onClick={() => navigate("/declarations")}>{t.createDeclaration}</button>
-              <button type="submit" className="eu-btn primary" disabled={loading}>
-                {loading ? t.saving : t.submitInspection}
-              </button>
-            </div>
 
             <div className="eu-grid two">
               <label className="eu-field">
@@ -346,7 +334,7 @@ export default function Inspection() {
               <div>{t.releaseReference}: {form.release_reference || "-"}</div>
             </div>
 
-            <div className="eu-nav inspections-page-submit-bar" style={{ justifyContent: "space-between" }}>
+            <div className="eu-nav inspections-page-submit-actions" style={{ justifyContent: "space-between" }}>
               <button type="button" className="eu-btn" onClick={() => navigate("/declarations")}>{t.createDeclaration}</button>
               <button type="submit" className="eu-btn primary" disabled={loading}>{loading ? t.saving : t.submitInspection}</button>
             </div>
