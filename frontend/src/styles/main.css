@@ -1284,10 +1284,10 @@ a {
 .btn,
 button.primary {
   min-height: 36px;
-  border: 1px solid var(--color-primary);
+  border: 1px solid #2c65a5;
   border-radius: 8px;
   padding: 0 12px;
-  background: var(--color-primary);
+  background: #2c65a5;
   color: #ffffff;
   font-weight: 750;
 }

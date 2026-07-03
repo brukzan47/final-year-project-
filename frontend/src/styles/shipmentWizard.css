@@ -321,18 +321,28 @@
 }
 
 .eu-btn {
-  border: 1px solid #c5d3e2;
-  background: #ffffff;
-  color: #22384d;
+  border: 1px solid #2c65a5;
+  background: #eef5fd;
+  color: #12335a;
   border-radius: 6px;
   padding: 8px 14px;
   cursor: pointer;
 }
 
 .eu-btn.primary {
-  background: var(--eu-blue);
-  border-color: var(--eu-blue);
+  background: #2c65a5;
+  border-color: #2c65a5;
   color: #ffffff;
+}
+
+.eu-btn:hover:not(:disabled) {
+  background: #dbe9f8;
+  border-color: #24558c;
+}
+
+.eu-btn.primary:hover:not(:disabled) {
+  background: #24558c;
+  border-color: #24558c;
 }
 
 .eu-btn:disabled {

@@ -127,7 +127,9 @@
   padding: 14px;
   font-size: 16px;
   border-radius: 8px;
-  border: none;
+  border: 1px solid #2c65a5;
+  background: #2c65a5;
+  color: #ffffff;
   cursor: pointer;
   transition: 0.2s ease;
   font-weight: 700;
@@ -140,30 +142,32 @@
 
 .payment-page .btn:hover:not(:disabled) {
   transform: translateY(-1px);
+  background: #24558c;
+  border-color: #24558c;
 }
 
 .payment-page .eu-btn {
-  background: #198754;
-  border-color: #157347;
+  background: #2c65a5;
+  border-color: #2c65a5;
   color: #ffffff;
-  box-shadow: 0 6px 14px rgba(25, 135, 84, 0.18);
+  box-shadow: 0 6px 14px rgba(44, 101, 165, 0.18);
 }
 
 .payment-page .eu-btn:hover:not(:disabled) {
-  background: #157347;
-  border-color: #146c43;
+  background: #24558c;
+  border-color: #24558c;
   color: #ffffff;
 }
 
 .payment-page .eu-btn.primary {
-  background: #198754;
-  border-color: #157347;
+  background: #2c65a5;
+  border-color: #2c65a5;
   color: #ffffff;
 }
 
 .payment-page .eu-btn:disabled {
-  background: #8bc5a5;
-  border-color: #8bc5a5;
+  background: #9fbadd;
+  border-color: #9fbadd;
   color: #ffffff;
 }
 
