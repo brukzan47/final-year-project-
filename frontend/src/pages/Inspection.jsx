@@ -340,7 +340,7 @@ export default function Inspection() {
               <div>{t.releaseReference}: {form.release_reference || "-"}</div>
             </div>
 
-            <div className="eu-nav inspections-page-actions" style={{ justifyContent: "space-between" }}>
+            <div className="eu-nav inspections-page-submit-bar" style={{ justifyContent: "space-between" }}>
               <button type="button" className="eu-btn" onClick={() => navigate("/declarations")}>{t.createDeclaration}</button>
               <button type="submit" className="eu-btn primary" disabled={loading}>{loading ? t.saving : t.submitInspection}</button>
             </div>
