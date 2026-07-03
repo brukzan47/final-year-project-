@@ -74,7 +74,7 @@ function getNotificationRoute(item, role) {
 
 export default function NotificationBell() {
   const navigate = useNavigate();
-  const { role } = useAuth();
+  const { token, role } = useAuth();
   const rootRef = useRef(null);
   const buttonRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -112,10 +112,16 @@ export default function NotificationBell() {
   };
 
   useEffect(() => {
+    if (!token) {
+      setItems([]);
+      setUnreadCount(0);
+      return;
+    }
     loadNotifications();
-  }, []);
+  }, [token]);
 
   useEffect(() => {
+    if (!token) return undefined;
     const stream = NotificationsAPI.stream?.(
       (notification) => {
         setItems((current) => {
@@ -132,7 +138,7 @@ export default function NotificationBell() {
       () => {}
     );
     return () => stream?.close?.();
-  }, []);
+  }, [token]);
 
   const updateDropdownPosition = useCallback(() => {
     const button = buttonRef.current;
