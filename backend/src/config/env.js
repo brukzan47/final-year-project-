@@ -9,7 +9,23 @@ const backendRoot = path.resolve(__dirname, "..", "..");
 // Always load backend/.env regardless of process cwd.
 dotenv.config({ path: path.join(backendRoot, ".env") });
 
-const databaseUrl = process.env.DATABASE_URL || "";
+function normalizeDatabaseUrl(raw) {
+  let url = String(raw || "").trim();
+  if (url.startsWith("DATABASE_URL=")) {
+    url = url.slice("DATABASE_URL=".length).trim();
+  }
+  if (!url) return "";
+  try {
+    const parsed = new URL(url);
+    if (!parsed.hostname.includes(".render.com") && /^dpg-[a-z0-9-]+$/i.test(parsed.hostname) && !process.env.RENDER) {
+      parsed.hostname = `${parsed.hostname}.ohio-postgres.render.com`;
+      return parsed.toString();
+    }
+  } catch {}
+  return url;
+}
+
+const databaseUrl = normalizeDatabaseUrl(process.env.DATABASE_URL);
 const databaseUrlRequiresSsl =
   /[?&]sslmode=require\b/i.test(databaseUrl) ||
   /\.render\.com(?:\/|:|$)/i.test(databaseUrl) ||
