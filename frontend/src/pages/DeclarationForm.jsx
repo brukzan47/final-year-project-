@@ -517,68 +517,70 @@ export default function DeclarationForm() {
           {docItems.length === 0 ? (
             <div>{t("noDocumentsForDeclaration")}</div>
           ) : (
-            <table className="smart-table smart-table--stack" style={{ borderCollapse: "collapse", width: "100%" }}>
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>File</th>
-                  <th>Type</th>
-                  <th>{t("uploaded")}</th>
-                  <th>{t("open")}</th>
-                  <th>{t("actions")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {docItems.map((d) => (
-                  <tr key={d.document_id}>
-                    <td>{d.title || "-"}</td>
-                    <td>{d.file_name}</td>
-                    <td>{d.file_type || "-"}</td>
-                    <td>{d.uploaded_at}</td>
-                    <td>{d.document_id ? (<button type="button" className="eu-btn" onClick={() => openDocument(d)}>Open</button>) : "-"}</td>
-                    <td>
-                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                        <button
-                          type="button"
-                          className="eu-btn"
-                          onClick={async () => {
-                            try {
-                              if (!window.confirm(t("deleteThisDocument"))) return;
-                              await DocumentsAPI.delete(d.document_id);
-                              const list = await DocumentsAPI.listByDeclaration(docsDeclId);
-                              setDocItems(Array.isArray(list) ? list : []);
-                              toast?.success?.(t("documentDeleted"));
-                            } catch (e) {
-                              toast?.error?.(e.message || t("deleteFailed"));
-                            }
-                          }}
-                        >
-                          {t("delete")}
-                        </button>
-                        <button
-                          type="button"
-                          className="eu-btn"
-                          disabled={ocrLoadingId === d.document_id}
-                          onClick={async () => {
-                            try {
-                              setOcrLoadingId(d.document_id);
-                              const res = await SmartAPI.ocrExtract({ document_id: d.document_id, file_name: d.file_name });
-                              setOcrPreview((prev) => ({ ...prev, [d.document_id]: res }));
-                            } catch (e) {
-                              toast?.error?.(e.message || t("previewFailed"));
-                            } finally {
-                              setOcrLoadingId("");
-                            }
-                          }}
-                        >
-                          {ocrLoadingId === d.document_id ? t("previewing") : t("preview")}
-                        </button>
-                      </div>
-                    </td>
+            <div className="declaration-documents-table-wrap">
+              <table className="smart-table smart-table--stack declaration-documents-table" style={{ borderCollapse: "collapse", width: "100%" }}>
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>File</th>
+                    <th>Type</th>
+                    <th>{t("uploaded")}</th>
+                    <th>{t("open")}</th>
+                    <th>{t("actions")}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {docItems.map((d) => (
+                    <tr key={d.document_id}>
+                      <td>{d.title || "-"}</td>
+                      <td>{d.file_name}</td>
+                      <td>{d.file_type || "-"}</td>
+                      <td>{d.uploaded_at}</td>
+                      <td>{d.document_id ? (<button type="button" className="eu-btn" onClick={() => openDocument(d)}>Open</button>) : "-"}</td>
+                      <td>
+                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                          <button
+                            type="button"
+                            className="eu-btn"
+                            onClick={async () => {
+                              try {
+                                if (!window.confirm(t("deleteThisDocument"))) return;
+                                await DocumentsAPI.delete(d.document_id);
+                                const list = await DocumentsAPI.listByDeclaration(docsDeclId);
+                                setDocItems(Array.isArray(list) ? list : []);
+                                toast?.success?.(t("documentDeleted"));
+                              } catch (e) {
+                                toast?.error?.(e.message || t("deleteFailed"));
+                              }
+                            }}
+                          >
+                            {t("delete")}
+                          </button>
+                          <button
+                            type="button"
+                            className="eu-btn"
+                            disabled={ocrLoadingId === d.document_id}
+                            onClick={async () => {
+                              try {
+                                setOcrLoadingId(d.document_id);
+                                const res = await SmartAPI.ocrExtract({ document_id: d.document_id, file_name: d.file_name });
+                                setOcrPreview((prev) => ({ ...prev, [d.document_id]: res }));
+                              } catch (e) {
+                                toast?.error?.(e.message || t("previewFailed"));
+                              } finally {
+                                setOcrLoadingId("");
+                              }
+                            }}
+                          >
+                            {ocrLoadingId === d.document_id ? t("previewing") : t("preview")}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
 
           <div style={{ display: "grid", gap: 8, marginTop: 4 }}>

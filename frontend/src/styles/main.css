@@ -1790,12 +1790,29 @@ button.primary {
 .declaration-documents-view {
   display: grid;
   gap: 14px;
+  min-width: 0;
   color: #14213d;
+}
+
+.declaration-documents-table-wrap {
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
 }
 
 .declaration-documents-view .smart-table {
   background: #ffffff;
   color: #14213d;
+}
+
+.declaration-documents-view .declaration-documents-table {
+  min-width: 760px;
+}
+
+@media (max-width: 760px) {
+  .declaration-documents-view .declaration-documents-table {
+    min-width: 0;
+  }
 }
 
 .document-preview-box {
