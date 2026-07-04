@@ -6,6 +6,7 @@ import { sha256FileSync } from "../utils/hashFile.js";
 import { env } from "../config/env.js";
 import { anchorHash } from "../services/anchorService.js";
 import { notifyImporterByDeclaration } from "../services/notificationService.js";
+import { resolveDocumentAbsPath } from "../utils/documentFiles.js";
 
 export const getDocuments = async (req, res) => {
   try {
@@ -45,7 +46,7 @@ export const uploadDocument = async (req, res) => {
       shipment_id: shipment_id || null,
       title: title || null,
       file_name: file.originalname,
-      file_path: `/uploads/${file.filename}`,
+      file_path: absPath,
       file_type: file.mimetype,
       file_size: file.size,
       uploaded_by: req.user?.id || null,
@@ -115,7 +116,7 @@ export const uploadBatch = async (req, res) => {
           declaration_id,
           title,
           file_name: file.originalname,
-          file_path: `/uploads/${file.filename}`,
+          file_path: path.resolve(file.path),
           file_type: file.mimetype,
           file_size: file.size,
           uploaded_by: req.user?.id || null,
@@ -189,8 +190,8 @@ export const deleteDocument = async (req, res) => {
 
     // Attempt to remove the physical file if it exists
     try {
-      const absPath = path.resolve(process.cwd(), `.${doc.file_path}`);
-      if (fs.existsSync(absPath)) fs.unlinkSync(absPath);
+      const absPath = resolveDocumentAbsPath(doc);
+      if (absPath && fs.existsSync(absPath)) fs.unlinkSync(absPath);
     } catch (_) {
       // Ignore unlink errors
     }
@@ -229,9 +230,11 @@ export const anchorDocument = async (req, res) => {
     let fileHash = doc.file_hash;
     if (!fileHash) {
       try {
-        const absPath = path.resolve(process.cwd(), `.${doc.file_path}`);
-        fileHash = sha256FileSync(absPath);
-        await Document.updateFileHash(id, fileHash);
+        const absPath = resolveDocumentAbsPath(doc);
+        if (absPath) {
+          fileHash = sha256FileSync(absPath);
+          await Document.updateFileHash(id, fileHash);
+        }
       } catch (_) { /* ignore */ }
     }
 
@@ -267,7 +270,10 @@ export const verifyDocumentHash = async (req, res) => {
     };
 
     try {
-      const absPath = path.resolve(process.cwd(), `.${doc.file_path}`);
+      const absPath = resolveDocumentAbsPath(doc);
+      if (!absPath) {
+        return res.status(404).json({ message: "Document file not found on server" });
+      }
       const cur = sha256FileSync(absPath);
       result.current_hash = cur;
       result.matches_db = !!doc.file_hash && cur === doc.file_hash;
