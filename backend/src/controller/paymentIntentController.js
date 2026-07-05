@@ -169,7 +169,7 @@ async function recordPaymentFromIntent(intent) {
       declaration_id: intent.declaration_id,
       title: "Payment Receipt",
       file_name: fileName,
-      file_path: `uploads/receipts/${fileName}`,
+      file_path: path.relative(process.cwd(), filePath).replace(/\\/g, "/"),
       file_type: usePdf ? 'application/pdf' : 'text/plain',
       file_size: stats.size,
       uploaded_by: null,

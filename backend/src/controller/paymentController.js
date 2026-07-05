@@ -8,6 +8,7 @@ import { env } from "../config/env.js";
 import { CustomsCalculator as Calc } from "../utils/calculator.js";
 import { notifyImporterByDeclaration } from "../services/notificationService.js";
 import { isImporterLike } from "../utils/roles.js";
+import { resolveDocumentAbsPath } from "../utils/documentFiles.js";
 
 export const getPayments = async (req, res) => {
   try {
@@ -225,8 +226,8 @@ export const getPaymentReceipt = async (req, res) => {
     const docs = await Document.getAll({ declaration_id });
     const doc = (docs || []).find(d => String(d.title || '').toLowerCase().includes('receipt'));
     if (doc) {
-      const abs = path.isAbsolute(doc.file_path) ? doc.file_path : path.join(process.cwd(), doc.file_path);
-      if (fs.existsSync(abs)) {
+      const abs = resolveDocumentAbsPath(doc);
+      if (abs && fs.existsSync(abs)) {
         res.setHeader('Content-Type', doc.file_type || 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename="${doc.file_name || 'receipt.pdf'}"`);
         return fs.createReadStream(abs).pipe(res);
