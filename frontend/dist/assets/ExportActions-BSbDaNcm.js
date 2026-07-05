@@ -1,0 +1,1 @@
+import{j as l}from"./index-Df4FwOHK.js";function o({actions:e=[]}){return e.length?l.jsx("div",{className:"export-actions",children:e.map((t,n)=>l.jsx("button",{type:"button",onClick:t.onClick,disabled:t.disabled,title:t.title,className:"export-btn",children:t.label},n))}):null}export{o as E};

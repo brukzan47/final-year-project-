@@ -17,16 +17,76 @@ function checkoutUrl(provider, intentId) {
   return null;
 }
 
+function normalizeProvider(provider) {
+  return String(provider || "").trim().toUpperCase();
+}
+
+function isSupportedProvider(provider) {
+  return ["CBE", "TELEBIRR", "CHAPA"].includes(normalizeProvider(provider));
+}
+
+function getWebhookConfig(provider) {
+  const p = normalizeProvider(provider);
+  if (p === "CBE") return { secret: env.webhooks.cbeSecret, headerNames: ["x-signature", "x-cbe-signature"] };
+  if (p === "TELEBIRR") return { secret: env.webhooks.telebirrSecret, headerNames: ["x-signature", "x-telebirr-signature"] };
+  if (p === "CHAPA") return { secret: env.webhooks.chapaSecret, headerNames: ["x-signature", "x-chapa-signature"] };
+  if (p === "AWASH") return { secret: env.webhooks.awashSecret, headerNames: ["x-signature", "x-awash-signature"] };
+  return { secret: "", headerNames: ["x-signature"] };
+}
+
+function readSignature(req, headerNames) {
+  for (const name of headerNames) {
+    const value = req.headers?.[name];
+    if (value) return value;
+  }
+  return null;
+}
+
+async function handleWebhook(provider, req, res) {
+  try {
+    const cfg = getWebhookConfig(provider);
+    const signature = readSignature(req, cfg.headerNames);
+    if (!hmacValid({ body: req.body, secret: cfg.secret, signature })) {
+      return res.status(401).json({ message: "invalid signature" });
+    }
+    const { intent_id, status, provider_ref, receipt_no } = req.body || {};
+    if (!intent_id || !status) return res.status(400).json({ message: "invalid payload" });
+    const updated = await PaymentIntent.setStatus(intent_id, status, { provider_ref, receipt_no });
+    if (status === "succeeded" && updated) await recordPaymentFromIntent(updated);
+    return res.json({ ok: true });
+  } catch (e) {
+    return res.status(500).json({ message: e.message });
+  }
+}
+
+export const getPaymentProviders = async (_req, res) => {
+  try {
+    return res.json({
+      providers: [
+        { key: "CBE", label: "CBE", checkout_url: "https://apps.cbe.com.et/payment" },
+        { key: "TELEBIRR", label: "Telebirr", checkout_url: "https://telebirr.et/pay" },
+        { key: "CHAPA", label: "Chapa", checkout_url: "https://checkout.chapa.co/checkout/payment" },
+      ],
+    });
+  } catch (e) {
+    return res.status(500).json({ message: e.message });
+  }
+};
+
 export const createIntent = async (req, res) => {
   try {
     const { declaration_id, amount_etb, provider, metadata } = req.body || {};
-    if (!declaration_id || !amount_etb || !provider) {
+    const normalizedProvider = normalizeProvider(provider);
+    if (!declaration_id || !amount_etb || !normalizedProvider) {
       return res.status(400).json({ message: "declaration_id, amount_etb, provider are required" });
     }
-    const intent = await PaymentIntent.create({ declaration_id, amount_etb, provider, metadata: metadata || null });
+    if (!isSupportedProvider(normalizedProvider)) {
+      return res.status(400).json({ message: "provider must be one of CBE, TELEBIRR, CHAPA" });
+    }
+    const intent = await PaymentIntent.create({ declaration_id, amount_etb, provider: normalizedProvider, metadata: metadata || null });
     res.status(201).json({
       ...intent,
-      checkout_url: checkoutUrl(provider, intent.intent_id),
+      checkout_url: checkoutUrl(normalizedProvider, intent.intent_id),
     });
   } catch (e) {
     res.status(500).json({ message: e.message });
@@ -36,8 +96,8 @@ export const createIntent = async (req, res) => {
 export const initiateFromPayment = async (req, res) => {
   try {
     const paymentId = req.params.id;
-    const provider = String(req.body?.provider || "").toUpperCase();
-    if (!["CBE", "TELEBIRR", "CHAPA"].includes(provider)) {
+    const provider = normalizeProvider(req.body?.provider);
+    if (!isSupportedProvider(provider)) {
       return res.status(400).json({ message: "provider must be one of CBE, TELEBIRR, CHAPA" });
     }
     const payment = await Payment.getById(paymentId);
@@ -225,33 +285,17 @@ export const mockSucceed = async (req, res) => {
 };
 
 export const webhookCBE = async (req, res) => {
-  try {
-    const signature = req.headers['x-signature'] || req.headers['x-cbe-signature'];
-    if (!hmacValid({ body: req.body, secret: env.webhooks.cbeSecret, signature })) {
-      return res.status(401).json({ message: 'invalid signature' });
-    }
-    const { intent_id, status, provider_ref, receipt_no } = req.body || {};
-    if (!intent_id || !status) return res.status(400).json({ message: "invalid payload" });
-    const updated = await PaymentIntent.setStatus(intent_id, status, { provider_ref, receipt_no });
-    if (status === 'succeeded' && updated) await recordPaymentFromIntent(updated);
-    res.json({ ok: true });
-  } catch (e) {
-    res.status(500).json({ message: e.message });
-  }
+  return handleWebhook("CBE", req, res);
 };
 
 export const webhookAwash = async (req, res) => {
-  try {
-    const signature = req.headers['x-signature'] || req.headers['x-awash-signature'];
-    if (!hmacValid({ body: req.body, secret: env.webhooks.awashSecret, signature })) {
-      return res.status(401).json({ message: 'invalid signature' });
-    }
-    const { intent_id, status, provider_ref, receipt_no } = req.body || {};
-    if (!intent_id || !status) return res.status(400).json({ message: "invalid payload" });
-    const updated = await PaymentIntent.setStatus(intent_id, status, { provider_ref, receipt_no });
-    if (status === 'succeeded' && updated) await recordPaymentFromIntent(updated);
-    res.json({ ok: true });
-  } catch (e) {
-    res.status(500).json({ message: e.message });
-  }
+  return handleWebhook("AWASH", req, res);
+};
+
+export const webhookTelebirr = async (req, res) => {
+  return handleWebhook("TELEBIRR", req, res);
+};
+
+export const webhookChapa = async (req, res) => {
+  return handleWebhook("CHAPA", req, res);
 };

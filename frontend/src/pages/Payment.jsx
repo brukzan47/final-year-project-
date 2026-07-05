@@ -8,11 +8,13 @@ import StatusBadge from "../components/StatusBadge.jsx";
 import "../styles/shipmentWizard.css";
 import "../styles/payment.css";
 import chapaLogo from "../assets/provider-chapa.svg";
-const PROVIDERS = [
-  { key: "CBE", label: "CBE", icon: "https://upload.wikimedia.org/wikipedia/en/thumb/6/6c/CBE_SA.png/120px-CBE_SA.png" },
-  { key: "TELEBIRR", label: "Telebirr", icon: "https://ethiopianlogos.com/logos/tele_birr/tele_birr.png" },
-  { key: "CHAPA", label: "Chapa", icon: chapaLogo },
-];
+import { PaymentIntentAPI } from "../api/paymentIntentAPI.js";
+
+const PROVIDER_ICON_MAP = {
+  CBE: "https://upload.wikimedia.org/wikipedia/en/thumb/6/6c/CBE_SA.png/120px-CBE_SA.png",
+  TELEBIRR: "https://ethiopianlogos.com/logos/tele_birr/tele_birr.png",
+  CHAPA: chapaLogo,
+};
 
 function money(v) {
   const n = Number(v || 0);
@@ -34,6 +36,7 @@ export default function Payment() {
   const [summary, setSummary] = useState(null);
   const [summaryError, setSummaryError] = useState("");
   const [showCreatedBanner, setShowCreatedBanner] = useState(false);
+  const [supportedProviders, setSupportedProviders] = useState([]);
   const pollRef = useRef(null);
 
   const isAdminRole = role === "Admin" || role === "Super Admin";
@@ -93,6 +96,31 @@ export default function Payment() {
       if (pollRef.current) clearInterval(pollRef.current);
     };
   }, [location.search]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await PaymentIntentAPI.providers();
+        setSupportedProviders(Array.isArray(data?.providers) ? data.providers : []);
+      } catch {
+        setSupportedProviders([]);
+      }
+    })();
+  }, []);
+
+  const providers = useMemo(() => {
+    const rows = supportedProviders.length
+      ? supportedProviders
+      : [
+          { key: "CBE", label: "CBE" },
+          { key: "TELEBIRR", label: "Telebirr" },
+          { key: "CHAPA", label: "Chapa" },
+        ];
+    return rows.map((item) => ({
+      ...item,
+      icon: item.icon || PROVIDER_ICON_MAP[String(item.key || "").toUpperCase()] || chapaLogo,
+    }));
+  }, [supportedProviders]);
 
   const filteredItems = useMemo(() => {
     if (statusFilter === "ALL") return items;
@@ -367,7 +395,7 @@ export default function Payment() {
                     <div style={{ marginTop: 12 }}>
                       <div style={{ color: "#fff", fontWeight: 700, marginBottom: 6 }}>{t("initiatePayment")}</div>
                       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                        {PROVIDERS.map((provider) => (
+                        {providers.map((provider) => (
                           <button
                             key={provider.key}
                             className="eu-btn primary payment-provider-btn"

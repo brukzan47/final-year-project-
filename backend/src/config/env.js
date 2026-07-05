@@ -56,6 +56,8 @@ export const env = {
   webhooks: {
     cbeSecret: process.env.CBE_WEBHOOK_SECRET || "",
     awashSecret: process.env.AWASH_WEBHOOK_SECRET || "",
+    telebirrSecret: process.env.TELEBIRR_WEBHOOK_SECRET || "",
+    chapaSecret: process.env.CHAPA_WEBHOOK_SECRET || "",
   },
   mail: {
     enabled: (process.env.EMAIL_ENABLED || "false").toLowerCase() === "true",
