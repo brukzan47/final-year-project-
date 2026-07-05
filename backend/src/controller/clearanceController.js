@@ -48,40 +48,14 @@ export const getReleaseNote = async (req, res) => {
     if (!row) return res.status(404).json({ message: "Clearance not found" });
 
     let PDFDocument;
-    let usePdf = false;
     try {
       const mod = await import("pdfkit");
       PDFDocument = mod.default || mod;
-      usePdf = true;
     } catch {
-      usePdf = false;
+      return res.status(500).json({ message: "PDF generation is unavailable on the server" });
     }
 
     const fileBase = `release-note-${row.delivery_note_no || row.clearance_id}`;
-
-    if (!usePdf) {
-      const text = [
-        "Customs Release Note",
-        "--------------------",
-        `Declaration No: ${row.declaration_no || "-"}`,
-        `Declaration Date: ${row.declaration_date ? new Date(row.declaration_date).toISOString().slice(0, 10) : "-"}`,
-        `Importer: ${row.company_name || "-"}`,
-        `Shipment Ref: ${row.shipment_reference || "-"}`,
-        `Origin Country: ${row.origin_country || "-"}`,
-        `Destination Port: ${row.destination_port || "-"}`,
-        `Release Date: ${row.release_date ? new Date(row.release_date).toISOString().slice(0, 10) : "-"}`,
-        `Officer: ${row.officer_name || "-"}`,
-        `Customs Office: ${row.customs_office || "-"}`,
-        `Delivery Note No: ${row.delivery_note_no || "-"}`,
-        `Transport Company: ${row.transport_company || "-"}`,
-        `Truck Plate: ${row.truck_plate_no || "-"}`,
-        `Destination Address: ${row.destination_address || "-"}`,
-      ].join("\n");
-      res.setHeader("Content-Type", "text/plain");
-      res.setHeader("Content-Disposition", `attachment; filename="${fileBase}.txt"`);
-      return res.send(text);
-    }
-
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename="${fileBase}.pdf"`);
 
@@ -94,6 +68,8 @@ export const getReleaseNote = async (req, res) => {
     doc.moveDown(1);
 
     const rows = [
+      ["Clearance ID", row.clearance_id],
+      ["Declaration ID", row.declaration_id],
       ["Declaration No", row.declaration_no],
       ["Declaration Date", row.declaration_date ? new Date(row.declaration_date).toISOString().slice(0, 10) : "-"],
       ["Importer", row.company_name],
@@ -107,6 +83,7 @@ export const getReleaseNote = async (req, res) => {
       ["Transport Company", row.transport_company || "-"],
       ["Truck Plate", row.truck_plate_no || "-"],
       ["Destination Address", row.destination_address || "-"],
+      ["Created At", row.created_at ? new Date(row.created_at).toISOString().replace("T", " ").slice(0, 19) : "-"],
     ];
 
     doc.fillColor("#111").fontSize(11);
