@@ -11,9 +11,14 @@ import { hmacValid } from "../utils/webhookVerify.js";
 
 function checkoutUrl(provider, intentId) {
   const p = String(provider || "").toUpperCase();
-  if (p === "CHAPA") return `https://checkout.chapa.co/checkout/payment/${intentId}`;
-  if (p === "TELEBIRR") return `https://telebirr.et/pay?intent_id=${encodeURIComponent(intentId)}`;
-  if (p === "CBE") return `https://apps.cbe.com.et/payment?intent_id=${encodeURIComponent(intentId)}`;
+  const makeUrl = (base) => {
+    const raw = String(base || "").trim();
+    if (!raw) return null;
+    return `${raw}${raw.includes("?") ? "&" : "?"}intent_id=${encodeURIComponent(intentId)}`;
+  };
+  if (p === "CHAPA") return makeUrl(env.payments?.chapaCheckoutUrl);
+  if (p === "TELEBIRR") return makeUrl(env.payments?.telebirrCheckoutUrl);
+  if (p === "CBE") return makeUrl(env.payments?.cbeCheckoutUrl);
   return null;
 }
 

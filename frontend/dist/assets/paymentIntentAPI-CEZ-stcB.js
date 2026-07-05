@@ -1,0 +1,1 @@
+import{f as t}from"./index-DnEZGKoB.js";const a={providers:()=>t.get("/payments/providers"),create:({declaration_id:e,amount_etb:n,provider:s,metadata:p})=>t.post("/payments/intent",{declaration_id:e,amount_etb:n,provider:s,metadata:p}),get:e=>t.get(`/payments/intent/${e}`),mockSucceed:(e,n)=>t.post(`/payments/mock/${e}/succeed`,n||{})};export{a as P};

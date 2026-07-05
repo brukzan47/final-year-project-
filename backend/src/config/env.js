@@ -59,6 +59,11 @@ export const env = {
     telebirrSecret: process.env.TELEBIRR_WEBHOOK_SECRET || "",
     chapaSecret: process.env.CHAPA_WEBHOOK_SECRET || "",
   },
+  payments: {
+    cbeCheckoutUrl: process.env.CBE_CHECKOUT_URL || "",
+    telebirrCheckoutUrl: process.env.TELEBIRR_CHECKOUT_URL || "",
+    chapaCheckoutUrl: process.env.CHAPA_CHECKOUT_URL || "",
+  },
   mail: {
     enabled: (process.env.EMAIL_ENABLED || "false").toLowerCase() === "true",
     host: process.env.SMTP_HOST || "",

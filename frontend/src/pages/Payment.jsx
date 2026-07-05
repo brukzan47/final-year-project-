@@ -1,5 +1,5 @@
 ﻿import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { PaymentsAPI } from "../api/paymentAPI.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useLanguage } from "../context/LanguageContext.jsx";
@@ -26,6 +26,7 @@ export default function Payment() {
   const { role } = useAuth();
   const { t } = useLanguage();
   const location = useLocation();
+  const navigate = useNavigate();
   const toast = useToast();
 
   const [items, setItems] = useState([]);
@@ -122,6 +123,11 @@ export default function Payment() {
     }));
   }, [supportedProviders]);
 
+  const isPlaceholderCheckoutUrl = (url) => {
+    const value = String(url || "").toLowerCase();
+    return value.includes("apps.cbe.com.et") || value.includes("telebirr.et") || value.includes("checkout.chapa.co");
+  };
+
   const filteredItems = useMemo(() => {
     if (statusFilter === "ALL") return items;
     return items.filter((x) => String(x.payment_status) === statusFilter);
@@ -213,8 +219,10 @@ export default function Payment() {
       setIntentByPayment((prev) => ({ ...prev, [selected.payment_id]: { provider, intent_id: res?.intent_id || "" } }));
       toast?.success?.(`${provider} ${t("paymentInitiatedToast")}`);
       startPolling(selected.payment_id);
-      if (res?.checkout_url) {
+      if (res?.checkout_url && !isPlaceholderCheckoutUrl(res.checkout_url)) {
         window.location.href = res.checkout_url;
+      } else if (res?.intent_id) {
+        navigate(`/payment-gateway/${encodeURIComponent(provider)}/${encodeURIComponent(res.intent_id)}`);
       }
     } catch (e) {
       toast?.error?.(e.message || t("paymentInitiationFailed"));

@@ -23,6 +23,7 @@ const ShipmentForm = React.lazy(() => import("./pages/ShipmentForm.jsx"));
 const DeclarationForm = React.lazy(() => import("./pages/DeclarationForm.jsx"));
 const Inspection = React.lazy(() => import("./pages/Inspection.jsx"));
 const Payment = React.lazy(() => import("./pages/Payment.jsx"));
+const PaymentGateway = React.lazy(() => import("./pages/PaymentGateway.jsx"));
 const FinanceOfficer = React.lazy(() => import("./pages/FinanceOfficer.jsx"));
 const Clearance = React.lazy(() => import("./pages/Clearance.jsx"));
 const Performance = React.lazy(() => import("./pages/Performance.jsx"));
@@ -334,6 +335,7 @@ function AppContent() {
             <Route path="/inspections" element={<ProtectedRoute roles={ROLE_GROUPS.inspections} unauthorized={<h3>{t("unauthorized")}</h3>}><Inspection /></ProtectedRoute>} />
             <Route path="/finance/*" element={<ProtectedRoute roles={ROLE_GROUPS.finance} unauthorized={<h3>{t("unauthorized")}</h3>}><FinanceOfficer /></ProtectedRoute>} />
             <Route path="/payments" element={<ProtectedRoute roles={ROLE_GROUPS.payments} unauthorized={<h3>{t("unauthorized")}</h3>}><Payment /></ProtectedRoute>} />
+            <Route path="/payment-gateway/:provider/:intentId" element={<ProtectedRoute roles={ROLE_GROUPS.payments} unauthorized={<h3>{t("unauthorized")}</h3>}><PaymentGateway /></ProtectedRoute>} />
             <Route path="/devices" element={<ProtectedRoute roles={["Super Admin","Admin","Customs Officer","Port Officer"]}><Devices /></ProtectedRoute>} />
             <Route path="/locations" element={<ProtectedRoute roles={["Super Admin","Admin","Port Officer"]}><Locations /></ProtectedRoute>} />
             <Route path="/search" element={<ProtectedRoute roles={["Super Admin","Admin","Importer","Inspector","Clearance Officer","Document Officer","Risk Analyst","Port Officer","Auditor"]}><Search /></ProtectedRoute>} />
