@@ -1,5 +1,18 @@
 import fs from "fs";
 import path from "path";
+import { sha256FileSync } from "./hashFile.js";
+
+function listFilesRecursive(dir, out = []) {
+  try {
+    if (!fs.existsSync(dir)) return out;
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const abs = path.join(dir, entry.name);
+      if (entry.isFile()) out.push(abs);
+      else if (entry.isDirectory()) listFilesRecursive(abs, out);
+    }
+  } catch {}
+  return out;
+}
 
 export function resolveDocumentAbsPath(doc) {
   if (!doc) return null;
@@ -60,6 +73,18 @@ export function resolveDocumentAbsPath(doc) {
       const match = entries.find((entry) => entry.isFile() && targetNames.has(entry.name.toLowerCase()));
       if (match) return path.join(dir, match.name);
     } catch {}
+  }
+
+  const fileHash = String(doc.file_hash || "").trim().toLowerCase();
+  if (fileHash) {
+    for (const dir of searchDirs) {
+      const files = listFilesRecursive(dir);
+      for (const abs of files) {
+        try {
+          if (sha256FileSync(abs).toLowerCase() === fileHash) return abs;
+        } catch {}
+      }
+    }
   }
 
   return null;
