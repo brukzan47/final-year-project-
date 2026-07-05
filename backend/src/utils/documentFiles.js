@@ -15,10 +15,18 @@ export function resolveDocumentAbsPath(doc) {
       .replace(/^[a-zA-Z]:[\\/]/, "")
       .replace(/^[\\/]+/, "")
       .replace(/\\/g, path.sep);
+    const uploadsTail = normalizedRawPath.match(/(?:^|\/)(?:backend\/)?uploads\/(.+)$/i)?.[1] || "";
+    const uploadsBase = uploadsTail ? path.posix.basename(uploadsTail) : "";
     candidates.push(
       path.isAbsolute(rawPath) ? rawPath : path.resolve(process.cwd(), cleaned),
       path.resolve(process.cwd(), cleaned),
     );
+    if (uploadsBase) {
+      candidates.push(
+        path.resolve(process.cwd(), "uploads", uploadsBase),
+        path.resolve(process.cwd(), "backend", "uploads", uploadsBase),
+      );
+    }
   }
 
   candidates.push(
@@ -28,11 +36,31 @@ export function resolveDocumentAbsPath(doc) {
     path.resolve(process.cwd(), "backend", "uploads", rawFileName || fileName),
   );
 
-  return candidates.find((candidate) => {
+  const found = candidates.find((candidate) => {
     try {
       return candidate && fs.existsSync(candidate);
     } catch {
       return false;
     }
-  }) || null;
+  });
+  if (found) return found;
+
+  const searchDirs = [
+    path.resolve(process.cwd(), "uploads"),
+    path.resolve(process.cwd(), "backend", "uploads"),
+  ];
+  const targetNames = new Set(
+    [fileName, rawFileName, path.posix.basename(normalizedRawPath || ""), path.win32.basename(rawPath || "")]
+      .filter(Boolean)
+      .map((name) => String(name).toLowerCase())
+  );
+  for (const dir of searchDirs) {
+    try {
+      const entries = fs.existsSync(dir) ? fs.readdirSync(dir, { withFileTypes: true }) : [];
+      const match = entries.find((entry) => entry.isFile() && targetNames.has(entry.name.toLowerCase()));
+      if (match) return path.join(dir, match.name);
+    } catch {}
+  }
+
+  return null;
 }

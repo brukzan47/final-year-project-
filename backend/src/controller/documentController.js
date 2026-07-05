@@ -37,6 +37,7 @@ export const uploadDocument = async (req, res) => {
     const { declaration_id, shipment_id, title } = req.body;
     const file = req.file;
     const absPath = path.resolve(file.path);
+    const storedPath = path.relative(process.cwd(), absPath).replace(/\\/g, "/");
     let file_hash = null;
     try {
       file_hash = sha256FileSync(absPath);
@@ -46,7 +47,7 @@ export const uploadDocument = async (req, res) => {
       shipment_id: shipment_id || null,
       title: title || null,
       file_name: file.originalname,
-      file_path: absPath,
+      file_path: storedPath,
       file_type: file.mimetype,
       file_size: file.size,
       uploaded_by: req.user?.id || null,
@@ -110,13 +111,14 @@ export const uploadBatch = async (req, res) => {
           continue;
         }
         const absPath = path.resolve(file.path);
+        const storedPath = path.relative(process.cwd(), absPath).replace(/\\/g, "/");
         let file_hash = null;
         try { file_hash = sha256FileSync(absPath); } catch (_) {}
         const payload = {
           declaration_id,
           title,
           file_name: file.originalname,
-          file_path: path.resolve(file.path),
+          file_path: storedPath,
           file_type: file.mimetype,
           file_size: file.size,
           uploaded_by: req.user?.id || null,
