@@ -2780,14 +2780,14 @@ footer,
 }
 
 .login-primary {
-  border: 1px solid #0b6e4f;
-  background: linear-gradient(135deg, #0b6e4f, #0a5c43);
+  border: 1px solid #2c65a5;
+  background: linear-gradient(135deg, #2c65a5, #24558c);
   color: #ffffff;
-  box-shadow: 0 12px 24px rgba(11, 110, 79, 0.24);
+  box-shadow: 0 12px 24px rgba(44, 101, 165, 0.24);
 }
 
 .login-primary:hover {
-  box-shadow: 0 16px 28px rgba(11, 110, 79, 0.28);
+  box-shadow: 0 16px 28px rgba(44, 101, 165, 0.28);
 }
 
 .login-secondary {
