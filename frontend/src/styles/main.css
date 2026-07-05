@@ -80,9 +80,9 @@ a {
   top: 0;
   z-index: 100;
   color: #ffffff;
-  background: linear-gradient(135deg, #0f5f3b, #008751);
-  border-bottom: 1px solid rgba(236, 253, 245, 0.18);
-  box-shadow: 0 10px 24px rgba(0, 67, 41, 0.14);
+  background: linear-gradient(135deg, #12335a, #2c65a5);
+  border-bottom: 1px solid rgba(191, 219, 254, 0.24);
+  box-shadow: 0 10px 24px rgba(18, 51, 90, 0.14);
 }
 
 .brand-header {
@@ -170,8 +170,8 @@ a {
   gap: 14px;
   padding: 10px 18px;
   color: #ffffff;
-  background: linear-gradient(135deg, #0f5f3b, #008751);
-  border-top: 1px solid rgba(236, 253, 245, 0.18);
+  background: linear-gradient(135deg, #12335a, #2c65a5);
+  border-top: 1px solid rgba(191, 219, 254, 0.24);
 }
 
 .topbar-menu {
