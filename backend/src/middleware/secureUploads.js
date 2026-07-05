@@ -1,4 +1,5 @@
 import fs from "fs";
+import path from "path";
 import { Document } from "../models/Document.js";
 import { isImporterLike } from "../utils/roles.js";
 import { resolveDocumentAbsPath } from "../utils/documentFiles.js";
@@ -18,7 +19,7 @@ export async function serveDocumentFile(req, res) {
       return res.status(404).json({ message: "Document file not found on server" });
     }
 
-    return res.download(absPath, doc.file_name || fileName);
+    return res.download(absPath, doc.file_name || path.basename(absPath));
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
