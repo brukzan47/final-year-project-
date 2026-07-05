@@ -216,7 +216,7 @@ export default function MyTracking() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `release-docs-${result?.declaration?.declaration_no || declarationId}.csv`;
+      a.download = `release-pdf-${result?.declaration?.declaration_no || declarationId}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();

@@ -260,40 +260,85 @@ export const downloadReleaseDocs = async (req, res) => {
     }
 
     const docRows = await pool.query(
-      `SELECT document_id, title, file_name, uploaded_at
+      `SELECT document_id, title, file_name, file_type, file_size, uploaded_at
          FROM documents
         WHERE declaration_id = $1
         ORDER BY uploaded_at DESC`,
       [declarationId]
     );
     const decl = await pool.query(
-      `SELECT declaration_no FROM declarations WHERE declaration_id = $1 LIMIT 1`,
+      `SELECT declaration_no, declaration_date, status, tariff_rate, duties_etb, payment_receipt_no
+         FROM declarations
+        WHERE declaration_id = $1 LIMIT 1`,
       [declarationId]
     );
     const declarationNo = decl.rows[0]?.declaration_no || declarationId;
-    const origin = `${req.protocol}://${req.get("host")}`;
-    const headers = ["declaration_no", "title", "file_name", "file_url", "uploaded_at"];
-    const esc = (v) => {
-      if (v === null || v === undefined) return "";
-      const s = String(v);
-      if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
-      return s;
-    };
-    const lines = [headers.join(",")];
-    for (const d of docRows.rows || []) {
-      const row = [
-        declarationNo,
-        d.title || "",
-        d.file_name || "",
-        `${origin}/api/documents/${encodeURIComponent(d.document_id)}/file`,
-        d.uploaded_at || "",
-      ];
-      lines.push(row.map(esc).join(","));
+
+    let PDFDocument;
+    try {
+      const mod = await import("pdfkit");
+      PDFDocument = mod.default || mod;
+    } catch {
+      return res.status(500).json({ message: "PDF generation is unavailable on the server" });
     }
-    const csv = lines.join("\n");
-    res.setHeader("Content-Type", "text/csv; charset=utf-8");
-    res.setHeader("Content-Disposition", `attachment; filename="release-docs-${declarationNo}.csv"`);
-    return res.send(csv);
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="release-pdf-${declarationNo}.pdf"`);
+
+    const doc = new PDFDocument({ size: "A4", margin: 48 });
+    doc.pipe(res);
+
+    const heading = "Release Package";
+    doc.fontSize(20).text(heading, { align: "left" });
+    doc.moveDown(0.4);
+    doc.fontSize(10).fillColor("#4b5563").text(`Declaration No: ${declarationNo}`);
+    doc.text(`Generated: ${new Date().toISOString().replace("T", " ").slice(0, 19)} UTC`);
+    doc.moveDown(0.8);
+
+    const declRow = decl.rows[0] || {};
+    const detailRows = [
+      ["Declaration Date", declRow.declaration_date ? new Date(declRow.declaration_date).toISOString().slice(0, 10) : "-"],
+      ["Declaration Status", declRow.status || "-"],
+      ["Payment Receipt No", declRow.payment_receipt_no || "-"],
+      ["Tariff Rate", declRow.tariff_rate ?? "-"],
+      ["Duties ETB", declRow.duties_etb ?? "-"],
+      ["Release Ready", ready ? "Yes" : "No"],
+      ["Payment", payStatus === "paid" || payStatus === "verified" ? "Confirmed" : "Pending"],
+      ["Inspection", inspectionOk ? "Passed" : "Pending"],
+      ["Clearance", clr?.clearance_id ? "Completed" : "Missing"],
+    ];
+
+    doc.fontSize(12).fillColor("#111827");
+    doc.text("Summary", { underline: true });
+    doc.moveDown(0.4);
+    for (const [k, v] of detailRows) {
+      doc.font("Helvetica-Bold").text(`${k}: `, { continued: true });
+      doc.font("Helvetica").text(String(v ?? "-"));
+    }
+
+    doc.moveDown(0.8);
+    doc.font("Helvetica-Bold").text("Supporting Documents", { underline: true });
+    doc.moveDown(0.4);
+    const rows = Array.isArray(docRows.rows) ? docRows.rows : [];
+    if (rows.length === 0) {
+      doc.font("Helvetica").text("No supporting documents were attached.");
+    } else {
+      rows.forEach((d, index) => {
+        const uploaded = d.uploaded_at ? new Date(d.uploaded_at).toISOString().slice(0, 10) : "-";
+        doc.font("Helvetica-Bold").text(`${index + 1}. ${d.title || d.file_name || "Document"}`);
+        doc.font("Helvetica").text(`   File: ${d.file_name || "-"}`);
+        doc.text(`   Type: ${d.file_type || "-"}`);
+        doc.text(`   Size: ${d.file_size ?? "-"}`);
+        doc.text(`   Uploaded: ${uploaded}`);
+        doc.moveDown(0.25);
+      });
+    }
+
+    doc.moveDown(0.8);
+    doc.font("Helvetica").fontSize(10).fillColor("#4b5563");
+    doc.text("This PDF packages the release summary and all uploaded supporting documents for the declaration.");
+    doc.end();
+    return;
   } catch (e) {
     return res.status(500).json({ message: e.message });
   }
