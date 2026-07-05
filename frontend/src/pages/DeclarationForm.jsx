@@ -75,6 +75,7 @@ export default function DeclarationForm() {
   const [ocrLoadingId, setOcrLoadingId] = useState("");
   const [docPreview, setDocPreview] = useState(null);
   const [docPreviewLoading, setDocPreviewLoading] = useState(false);
+  const [docPreviewOpen, setDocPreviewOpen] = useState(false);
 
   const highlightRef = useRef(null);
 
@@ -280,6 +281,7 @@ export default function DeclarationForm() {
           type: blob.type || doc.file_type || "",
         };
       });
+      setDocPreviewOpen(true);
     } catch (e) {
       toast?.error?.(e.message || t("failedToLoadDocuments"));
     } finally {
@@ -623,6 +625,40 @@ export default function DeclarationForm() {
               ))}
             </div>
           )}
+        </div>
+      </Modal>
+
+      <Modal
+        open={docPreviewOpen}
+        title={docPreview?.name || t("documentPreview")}
+        onClose={() => setDocPreviewOpen(false)}
+        variant="document"
+      >
+        <div className="declaration-doc-preview-modal">
+          <div className="document-preview-box document-preview-box--max">
+            <div className="document-preview-toolbar">
+              <div>
+                <div className="document-preview-title">{docPreview?.name || t("selectDocumentToPreview")}</div>
+                <div className="document-preview-meta">{docPreview?.type || t("selectDocumentToPreview")}</div>
+              </div>
+              <div className="document-preview-actions">
+                {docPreview?.url && (
+                  <a href={docPreview.url} target="_blank" rel="noreferrer">{t("openNewTab")}</a>
+                )}
+              </div>
+            </div>
+            <div className="document-preview-frame" style={{ height: "70vh", minHeight: 560 }}>
+              {docPreviewLoading && <div className="document-preview-empty">{t("loadingDocument")}</div>}
+              {!docPreviewLoading && !docPreview && <div className="document-preview-empty">{t("selectDocumentToPreview")}</div>}
+              {!docPreviewLoading && docPreview && (
+                <iframe
+                  title={docPreview.name}
+                  src={docPreview.url}
+                  style={{ width: "100%", height: "100%", border: 0 }}
+                />
+              )}
+            </div>
+          </div>
         </div>
       </Modal>
       </div>
