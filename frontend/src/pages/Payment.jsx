@@ -196,7 +196,7 @@ export default function Payment() {
     pollRef.current = setInterval(async () => {
       try {
         const current = await PaymentsAPI.getStatus(paymentId);
-        if (String(current?.payment_status) === "Paid") {
+        if (["Verified", "Paid"].includes(String(current?.payment_status))) {
           clearInterval(pollRef.current);
           pollRef.current = null;
           setIntentByPayment((prev) => {
@@ -204,7 +204,11 @@ export default function Payment() {
             delete next[paymentId];
             return next;
           });
-          toast?.success?.(t("paymentCompletedApproved"));
+          toast?.success?.(
+            String(current?.payment_status) === "Paid"
+              ? t("paymentCompletedApproved")
+              : t("paymentVerified")
+          );
           await load();
         }
       } catch {}

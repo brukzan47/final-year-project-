@@ -137,7 +137,104 @@ export const getIntent = async (req, res) => {
   }
 };
 
+export const receiptByDeclaration = async (req, res) => {
+  try {
+    const declarationId = req.params.id;
+    const docs = await Document.getAll({ declaration_id: declarationId });
+    const receipt = (docs || []).find((doc) => String(doc.title || "").toLowerCase().includes("receipt"));
+    if (!receipt) return res.status(404).json({ message: "Receipt not found" });
+    return res.json(receipt);
+  } catch (e) {
+    return res.status(500).json({ message: e.message });
+  }
+};
+
 async function recordPaymentFromIntent(intent) {
+  const metadata = intent.metadata && typeof intent.metadata === "object" ? intent.metadata : {};
+  const paymentId = metadata.payment_id || null;
+  const receiptNo = intent.receipt_no || `REC-${Date.now()}`;
+  const providerRef = intent.provider_ref || `LOCAL-${Date.now()}`;
+  const paymentMethod = `Online (${intent.provider})`;
+  const paidAmount = Number(intent.amount_etb || 0);
+  const paymentDate = new Date();
+
+  const updatePendingPayment = async (client, payment) => {
+    const result = await client.query(
+      `UPDATE payments
+          SET payment_status='Verified',
+              receipt_no=COALESCE($2, receipt_no),
+              payment_method=$3,
+              transaction_id=COALESCE($4, transaction_id),
+              paid_amount=COALESCE($5, paid_amount),
+              currency=COALESCE(currency, 'ETB'),
+              payment_date=COALESCE(payment_date, $6),
+              verified_at=COALESCE(verified_at, $7),
+              failure_reason=NULL,
+              updated_at=now()
+        WHERE payment_id=$1
+          AND payment_status='Pending'
+        RETURNING *`,
+      [payment.payment_id, receiptNo, paymentMethod, providerRef, paidAmount, paymentDate, paymentDate]
+    );
+    if (!result.rowCount) return payment;
+    await Payment.appendEvent(
+      payment.payment_id,
+      "local_gateway_succeeded",
+      null,
+      {
+        intent_id: intent.intent_id,
+        provider: intent.provider,
+        provider_ref: providerRef,
+        receipt_no: receiptNo,
+      },
+      client
+    );
+    return result.rows[0];
+  };
+
+  let matchedPayment = null;
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    let existing = null;
+    if (paymentId) {
+      const byId = await client.query(
+        "SELECT * FROM payments WHERE payment_id=$1 AND declaration_id=$2 FOR UPDATE",
+        [paymentId, intent.declaration_id]
+      );
+      existing = byId.rows[0] || null;
+    }
+    if (!existing) {
+      const byDeclaration = await client.query(
+        `SELECT *
+           FROM payments
+          WHERE declaration_id=$1
+            AND payment_status IN ('Pending','Verified','Paid')
+          ORDER BY
+            CASE payment_status WHEN 'Pending' THEN 0 WHEN 'Verified' THEN 1 ELSE 2 END,
+            created_at DESC
+          LIMIT 1
+          FOR UPDATE`,
+        [intent.declaration_id]
+      );
+      existing = byDeclaration.rows[0] || null;
+    }
+
+    if (existing && String(existing.payment_status || "") === "Pending") {
+      matchedPayment = await updatePendingPayment(client, existing);
+    } else if (existing) {
+      matchedPayment = existing;
+    }
+
+    await client.query("COMMIT");
+  } catch {
+    try { await client.query("ROLLBACK"); } catch {}
+  } finally {
+    client.release();
+  }
+
+  if (matchedPayment) return matchedPayment;
+
   const payload = {
     declaration_id: intent.declaration_id,
     invoice_value_usd: null,
@@ -147,10 +244,10 @@ async function recordPaymentFromIntent(intent) {
     vat_paid: null,
     excise_paid: null,
     total_payable: intent.amount_etb,
-    payment_method: `Online (${intent.provider})`,
+    payment_method: paymentMethod,
     payment_status: "Verified",
     payment_date: new Date().toISOString().slice(0, 10),
-    receipt_no: intent.receipt_no || null,
+    receipt_no: receiptNo,
   };
 
   let createdPayment = null;
@@ -161,6 +258,18 @@ async function recordPaymentFromIntent(intent) {
     );
     if (exists.rowCount === 0) {
       createdPayment = await Payment.create(payload);
+      await Payment.updateFields(createdPayment.payment_id, {
+        transaction_id: providerRef,
+        paid_amount: paidAmount,
+        currency: "ETB",
+        verified_at: paymentDate,
+      });
+      await Payment.appendEvent(createdPayment.payment_id, "local_gateway_succeeded", null, {
+        intent_id: intent.intent_id,
+        provider: intent.provider,
+        provider_ref: providerRef,
+        receipt_no: receiptNo,
+      });
     }
   } catch {}
 
