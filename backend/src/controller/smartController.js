@@ -5,6 +5,7 @@ import { embedText } from "../services/smart/embeddingService.js";
 import { suggestHs, estimateValue } from "../services/smart/hsSuggestService.js";
 import { extractFields } from "../services/smart/ocrService.js";
 import { pool } from "../config/db.js";
+import { Document } from "../models/Document.js";
 
 function guardEnabled(res, key = 'enabled') {
   if (!env.smart?.[key] && key !== 'enabled') return res.status(503).json({ message: `Smart ${key} not enabled` });
@@ -312,11 +313,20 @@ export const smartEstimateValue = async (req, res) => {
 };
 
 export const smartOcrExtract = async (req, res) => {
-  if (guardEnabled(res, 'ocrEnabled')) return;
   try {
     const { document_id, file_name } = req.body || {};
     if (!document_id) return res.status(400).json({ message: 'document_id required' });
-    const out = await extractFields({ document_id, file_name });
+    const doc = await Document.getById(document_id);
+    if (!doc) return res.status(404).json({ message: 'Document not found' });
+    const out = await extractFields({
+      document_id,
+      file_name: file_name || doc.file_name,
+      title: doc.title,
+      file_type: doc.file_type,
+      file_size: doc.file_size,
+      file_path: doc.file_path,
+      ocr_enabled: !!env.smart?.ocrEnabled,
+    });
     const saved = await OcrExtract.insert({ document_id, fields: out.fields, confidence: out.confidence });
     res.json(saved);
   } catch (e) { res.status(500).json({ message: e.message }); }

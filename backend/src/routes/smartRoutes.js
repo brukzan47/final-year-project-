@@ -45,7 +45,7 @@ router.post(
 router.post(
   "/ocr/extract",
   verifyToken,
-  authorizeRoles("Admin", "Customs Officer", "Risk Analyst", "Auditor", "Importer"),
+  authorizeRoles("Admin", "Customs Officer", "Document Officer", "Risk Analyst", "Auditor", "Importer"),
   express.json({ type: "application/json" }),
   smartOcrExtract
 );
