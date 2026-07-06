@@ -1,35 +1,60 @@
-import jwt from "jsonwebtoken";
-import { env } from "../config/env.js";
-import { pool } from "../config/db.js";
+// backend/src/middleware/auth.js
+import jwt from 'jsonwebtoken';
+import { pool } from '../config/db.js';
 
-export const verifyToken = async (req, res, next) => {
+export async function generateAccessToken(user) {
+  const payload = { sub: user.id, email: user.email };
+  const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '1h' });
+  return token;
+}
+
+export async function authenticateJWT(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ message: 'Missing authorization header' });
+  const token = authHeader.split(' ')[1];
   try {
-    const authHeader = req.headers["authorization"];
-    if (!authHeader) return res.status(401).json({ message: "No token provided" });
-
-    const token = authHeader.split(" ")[1];
-    if (!token) return res.status(401).json({ message: "Invalid token format" });
-
-    const user = jwt.verify(token, env.jwtSecret);
-    req.user = user; // user: { id, role, name }
-
-    const mustChangeRes = await pool.query(
-      "SELECT must_change_password FROM users WHERE user_id=$1 LIMIT 1",
-      [user.id]
-    );
-    const mustChange = !!mustChangeRes.rows?.[0]?.must_change_password;
-    const isPasswordChangeRoute = req.baseUrl === "/api/auth" && req.path === "/password" && req.method === "PUT";
-
-    if (mustChange && !isPasswordChangeRoute) {
-      return res.status(403).json({
-        message: "Password change required before accessing this resource.",
-        must_change_password: true,
-      });
-    }
-
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    // load user
+    const result = await pool.query('SELECT id, username, email, is_active FROM users WHERE id = $1', [payload.sub]);
+    if (!result.rowCount) return res.status(401).json({ message: 'Invalid token: user not found' });
+    const user = result.rows[0];
+    if (!user.is_active) return res.status(403).json({ message: 'Account not active' });
+    // load permissions
+    const perms = await pool.query(`
+      SELECT p.name FROM permissions p
+      JOIN role_permissions rp ON rp.permission_id = p.id
+      JOIN user_roles ur ON ur.role_id = rp.role_id
+      WHERE ur.user_id = $1
+    `, [user.id]);
+    user.permissions = perms.rows.map(r => r.name);
+    // load roles
+    const rolesRes = await pool.query(`
+      SELECT r.name FROM roles r
+      JOIN user_roles ur ON ur.role_id = r.id
+      WHERE ur.user_id = $1
+    `, [user.id]);
+    user.roles = rolesRes.rows.map(r => r.name);
+    req.user = user;
     next();
   } catch (err) {
-    console.error("Auth middleware error:", err.message);
-    res.status(403).json({ message: "Token expired or invalid" });
+    return res.status(401).json({ message: 'Invalid token', error: err.message });
   }
-};
+}
+
+export function requirePermission(permissionName) {
+  return (req, res, next) => {
+    const user = req.user;
+    if (!user) return res.status(401).json({ message: 'Not authenticated' });
+    if (user.permissions && user.permissions.includes(permissionName)) return next();
+    return res.status(403).json({ message: 'Forbidden' });
+  };
+}
+
+export function requireRole(roleName) {
+  return (req, res, next) => {
+    const user = req.user;
+    if (!user) return res.status(401).json({ message: 'Not authenticated' });
+    if (user.roles && user.roles.includes(roleName)) return next();
+    return res.status(403).json({ message: 'Forbidden' });
+  };
+}
