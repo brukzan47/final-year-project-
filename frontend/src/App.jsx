@@ -9,6 +9,7 @@ import { useLanguage } from "./context/LanguageContext.jsx";
 import Toaster from "./components/Toaster.jsx";
 import CommandPalette from "./components/CommandPalette.jsx";
 import Footer from "./components/Footer.jsx";
+import FabAssistant from "./components/FabAssistant.jsx";
 import MobileTabs from "./components/MobileTabs.jsx";
 import ResponsiveTables from "./components/ResponsiveTables.jsx";
 import Login from "./pages/Login.jsx";
@@ -357,6 +358,7 @@ function AppContent() {
           </Routes>
         </Suspense>
       </main>
+      <FabAssistant />
       <ConditionalMobileTabs />
       <ConditionalFooter />
     </div>
