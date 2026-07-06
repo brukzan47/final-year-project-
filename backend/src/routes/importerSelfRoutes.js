@@ -1,12 +1,11 @@
 import express from "express";
-import { createImporter } from "../controller/importerController.js";
-import { verifyToken } from "../middleware/auth.js";
-import { authorizeRoles } from "../middleware/roleCheck.js";
+import { createImporterSelf } from "../controller/importerController.js";
+import { validateImporter } from "../middleware/importerValidation.js";
+import { rateLimit } from "../middleware/rateLimit.js";
 
 const router = express.Router();
 
-// Allow Importer to create own profile; Admin/Officer may also use this endpoint
-router.post("/self", verifyToken, authorizeRoles("Importer", "Admin", "Customs Officer"), createImporter);
+// Self-registration endpoint (rate-limited)
+router.post("/self", rateLimit({ windowMs: 60_000, max: 5 }), validateImporter, createImporterSelf);
 
 export default router;
-
