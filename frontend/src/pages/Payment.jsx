@@ -1,5 +1,6 @@
 ﻿import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { Bot, Send, Sparkles } from "lucide-react";
 import { PaymentsAPI } from "../api/paymentAPI.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useLanguage } from "../context/LanguageContext.jsx";
@@ -22,6 +23,77 @@ function money(v) {
   return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+function paymentStatusGuidance({ selected, effectiveStatus, role, canPay, canVerify, canApprove, providers }) {
+  if (!selected) {
+    return "Select a payment from the queue and I can explain the amount, status, next action, and receipt availability.";
+  }
+
+  const status = String(effectiveStatus || selected.payment_status || "Pending");
+  const amount = `${money(selected.total_payable)} ETB`;
+  const providerNames = providers.map((provider) => provider.label).join(", ") || "the configured providers";
+  const declaration = selected.declaration_no || selected.declaration_id || "this declaration";
+  const base = `${declaration} has ${amount} payable and is currently ${status}.`;
+
+  if (status === "Pending") {
+    const actions = [];
+    if (canPay) actions.push(`start payment through ${providerNames}`);
+    if (canVerify) actions.push("mark it verified after confirming a valid bank receipt");
+    const next = actions.length ? actions.join(" or ") : "wait for an authorized finance user to initiate or verify payment";
+    return `${base} Next step: ${next}. If a live provider URL is not configured, the portal opens the local fallback checkout so the payment can still be completed for testing or demos.`;
+  }
+
+  if (status === "Initiated") {
+    return `${base} A gateway intent has been created. Complete the provider checkout; when the local fallback gateway succeeds, the payment returns to Verified for finance approval.`;
+  }
+
+  if (status === "Verified") {
+    return `${base} The gateway or finance verification has succeeded. ${canApprove ? "Approve it to mark it Paid and unlock receipt download." : "A Finance Officer or Super Admin must approve it before it becomes Paid."}`;
+  }
+
+  if (status === "Paid") {
+    return `${base} This payment is complete. The receipt can be downloaded here, and clearance can continue when the remaining release requirements are satisfied.`;
+  }
+
+  if (status === "Failed") {
+    return `${base} The payment failed or was rejected. ${canVerify ? "Reset it to Pending, then retry the payment or verify a corrected receipt." : "A Finance Officer must reset it before another attempt."}`;
+  }
+
+  return `${base} Review the timeline and actions shown on this page for the next workflow step. Your current role is ${role || "not set"}.`;
+}
+
+function answerPaymentQuestion({ question, selected, effectiveStatus, role, canPay, canVerify, canApprove, providers }) {
+  const low = String(question || "").toLowerCase();
+  const context = { selected, effectiveStatus, role, canPay, canVerify, canApprove, providers };
+
+  if (!selected) return paymentStatusGuidance(context);
+
+  if (/receipt|download|proof/.test(low)) {
+    if (String(selected.payment_status) === "Paid") {
+      return `Receipt ${selected.receipt_no || "number is not set"} is available. Use Download Receipt on this page.`;
+    }
+    return `Receipt download is available only after the payment is approved as Paid. Current status: ${effectiveStatus}.`;
+  }
+
+  if (/amount|total|payable|money|fee|duty|tax/.test(low)) {
+    return `Total payable is ${money(selected.total_payable)} ETB for ${selected.declaration_no || selected.declaration_id}. Payment method: ${selected.payment_method || "not selected yet"}.`;
+  }
+
+  if (/fallback|gateway|provider|chapa|telebirr|cbe|checkout/.test(low)) {
+    return `Available providers: ${providers.map((provider) => provider.label).join(", ") || "CBE, Telebirr, Chapa"}. If a live checkout URL is missing or points to a placeholder, the portal opens the local fallback gateway and records the result back to this payment.`;
+  }
+
+  if (/approve|paid|finance/.test(low)) {
+    if (String(selected.payment_status) === "Verified") {
+      return canApprove
+        ? "This payment is Verified. Use Approve Payment to mark it Paid, post it to revenue, and make the receipt available."
+        : "This payment is Verified. A Finance Officer or Super Admin must approve it to mark it Paid.";
+    }
+    return `Approval is available after verification. Current status: ${effectiveStatus}.`;
+  }
+
+  return paymentStatusGuidance(context);
+}
+
 export default function Payment() {
   const { role } = useAuth();
   const { t } = useLanguage();
@@ -38,7 +110,12 @@ export default function Payment() {
   const [summaryError, setSummaryError] = useState("");
   const [showCreatedBanner, setShowCreatedBanner] = useState(false);
   const [supportedProviders, setSupportedProviders] = useState([]);
+  const [assistantInput, setAssistantInput] = useState("");
+  const [assistantMessages, setAssistantMessages] = useState([
+    { from: "assistant", text: "Select a payment or ask about status, receipt, gateway, approval, or the next step." },
+  ]);
   const pollRef = useRef(null);
+  const assistantBoxRef = useRef(null);
 
   const isAdminRole = role === "Admin" || role === "Super Admin";
   const isSuperAdmin = role === "Super Admin";
@@ -191,6 +268,12 @@ export default function Payment() {
     return String(selected.payment_status || "Pending");
   }, [selected, intentByPayment]);
 
+  useEffect(() => {
+    try {
+      assistantBoxRef.current?.scrollTo({ top: assistantBoxRef.current.scrollHeight, behavior: "smooth" });
+    } catch {}
+  }, [assistantMessages]);
+
   const startPolling = (paymentId) => {
     if (pollRef.current) clearInterval(pollRef.current);
     pollRef.current = setInterval(async () => {
@@ -284,6 +367,34 @@ export default function Payment() {
       toast?.error?.(e.message || t("failedToDownloadReceipt"));
     }
   };
+
+  const askAssistant = (text) => {
+    const question = String(text ?? assistantInput).trim();
+    if (!question) return;
+    const answer = answerPaymentQuestion({
+      question,
+      selected,
+      effectiveStatus,
+      role,
+      canPay,
+      canVerify,
+      canApprove,
+      providers,
+    });
+    setAssistantMessages((prev) => [
+      ...prev,
+      { from: "user", text: question },
+      { from: "assistant", text: answer },
+    ]);
+    setAssistantInput("");
+  };
+
+  const assistantPrompts = [
+    "What should I do next?",
+    "Explain this status",
+    "Can I download a receipt?",
+    "How does fallback gateway work?",
+  ];
 
   return (
     <div className="payments-page-shell">
@@ -437,6 +548,49 @@ export default function Payment() {
                     {String(selected.payment_status) === "Paid" && (
                       <button className="eu-btn primary" onClick={handleReceipt}>{t("downloadReceipt")}</button>
                     )}
+                  </div>
+
+                  <div className="payment-ai-assistant" aria-label="AI payment assistance">
+                    <div className="payment-ai-header">
+                      <span className="payment-ai-icon"><Bot size={18} /></span>
+                      <div>
+                        <div className="payment-ai-title">AI Assistance</div>
+                        <div className="payment-ai-subtitle">Payment workflow guidance</div>
+                      </div>
+                      <Sparkles size={18} className="payment-ai-spark" />
+                    </div>
+
+                    <div className="payment-ai-context">
+                      <span>{effectiveStatus}</span>
+                      <strong>{money(selected.total_payable)} ETB</strong>
+                    </div>
+
+                    <div className="payment-ai-prompts">
+                      {assistantPrompts.map((prompt) => (
+                        <button key={prompt} type="button" onClick={() => askAssistant(prompt)}>
+                          {prompt}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div ref={assistantBoxRef} className="payment-ai-messages">
+                      {assistantMessages.map((message, index) => (
+                        <div key={`${message.from}-${index}`} className={`payment-ai-message ${message.from === "user" ? "user" : "assistant"}`}>
+                          {message.text}
+                        </div>
+                      ))}
+                    </div>
+
+                    <form className="payment-ai-form" onSubmit={(event) => { event.preventDefault(); askAssistant(); }}>
+                      <input
+                        value={assistantInput}
+                        onChange={(event) => setAssistantInput(event.target.value)}
+                        placeholder="Ask about this payment..."
+                      />
+                      <button type="submit" aria-label="Ask AI assistant">
+                        <Send size={16} />
+                      </button>
+                    </form>
                   </div>
                 </>
               )}

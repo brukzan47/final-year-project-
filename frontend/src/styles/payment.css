@@ -232,6 +232,155 @@
   margin-top: 18px;
 }
 
+.payment-ai-assistant {
+  margin-top: 16px;
+  border: 1px solid #cfe0f2;
+  background: #f8fbff;
+  border-radius: 8px;
+  padding: 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.payment-ai-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #12335a;
+}
+
+.payment-ai-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #e8f2ff;
+  color: #24558c;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.payment-ai-title {
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.payment-ai-subtitle {
+  font-size: 12px;
+  color: #5a6b7d;
+  margin-top: 2px;
+}
+
+.payment-ai-spark {
+  margin-left: auto;
+  color: #0b6e4f;
+}
+
+.payment-ai-context {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid #dbe7f4;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #12335a;
+}
+
+.payment-ai-context span {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.payment-ai-context strong {
+  font-size: 14px;
+}
+
+.payment-ai-prompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.payment-ai-prompts button,
+.payment-ai-form button {
+  border: 1px solid #b9cee5;
+  background: #ffffff;
+  color: #12335a;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.payment-ai-prompts button {
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.payment-ai-prompts button:hover,
+.payment-ai-form button:hover {
+  border-color: #2c65a5;
+  background: #eef5fd;
+}
+
+.payment-ai-messages {
+  max-height: 210px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 2px;
+}
+
+.payment-ai-message {
+  max-width: 92%;
+  padding: 9px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #1f2937;
+  white-space: pre-wrap;
+}
+
+.payment-ai-message.assistant {
+  align-self: flex-start;
+  background: #ffffff;
+  border: 1px solid #dbe7f4;
+}
+
+.payment-ai-message.user {
+  align-self: flex-end;
+  background: #24558c;
+  border: 1px solid #24558c;
+  color: #ffffff;
+}
+
+.payment-ai-form {
+  display: grid;
+  grid-template-columns: 1fr 42px;
+  gap: 8px;
+}
+
+.payment-ai-form input {
+  min-width: 0;
+  border: 1px solid #b9cee5;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #ffffff;
+  color: #111827;
+}
+
+.payment-ai-form button {
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .muted {
   color: #667085;
   font-size: 13px;
@@ -254,6 +403,15 @@
   .payment-provider-btn {
     min-width: 0;
     width: 100%;
+  }
+
+  .payment-ai-context {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .payment-ai-message {
+    max-width: 100%;
   }
 }
 
