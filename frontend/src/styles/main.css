@@ -1753,6 +1753,52 @@ button.primary {
   font-weight: 800;
 }
 
+.fileupload-smart-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  background: #eff6ff;
+  padding: 12px 14px;
+  color: #12335a;
+}
+
+.fileupload-smart-panel__title {
+  font-size: 14px;
+  font-weight: 850;
+}
+
+.fileupload-smart-panel__body {
+  margin-top: 3px;
+  color: #334155;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.fileupload-smart-panel__meta {
+  margin-top: 5px;
+  color: #0b6e4f;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.fileupload-smart-panel button {
+  flex-shrink: 0;
+  border: 1px solid #2c65a5;
+  border-radius: 8px;
+  background: #2c65a5;
+  color: #ffffff;
+  padding: 9px 12px;
+  font-weight: 800;
+}
+
+.fileupload-smart-panel button:hover:not(:disabled) {
+  background: #24558c;
+  border-color: #24558c;
+}
+
 .fileupload-ocr-records {
   display: grid;
   gap: 10px;
@@ -4763,6 +4809,15 @@ button.risk-tag {
 
   .fileupload-records__title {
     font-size: 16px;
+  }
+
+  .fileupload-smart-panel {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .fileupload-smart-panel button {
+    width: 100%;
   }
 
   .document-preview-toolbar {

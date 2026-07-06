@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { DeclarationsAPI } from "../api/declarationAPI.js";
 import { DocumentsAPI } from "../api/documentAPI.js";
 import { SmartAPI } from "../api/smartAPI.js";
@@ -21,6 +21,11 @@ const fields = [
   { name: "insurance_certificate", label: "Insurance Certificate" },
 ];
 const MAX_FILES_PER_UPLOAD = 5;
+const FIELD_LABEL_BY_NAME = Object.fromEntries(fields.map((field) => [field.name, field.label]));
+
+function smartDocLabel(type = "") {
+  return FIELD_LABEL_BY_NAME[type] || String(type || "Supporting Document").replace(/_/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
+}
 
 export default function FileUpload() {
   const { lang } = useLanguage();
@@ -44,6 +49,9 @@ export default function FileUpload() {
   const [allowDuplicates, setAllowDuplicates] = useState(false);
   const [previews, setPreviews] = useState({});
   const [ocrMap, setOcrMap] = useState({});
+  const [ocrLoadingIds, setOcrLoadingIds] = useState(new Set());
+  const [smartDocBusy, setSmartDocBusy] = useState(false);
+  const [smartDocMessage, setSmartDocMessage] = useState("");
   const [eligibleDeclarationIds, setEligibleDeclarationIds] = useState(new Set());
   const [docPreview, setDocPreview] = useState(null);
   const [docPreviewSize, setDocPreviewSize] = useState("mini");
@@ -137,6 +145,15 @@ export default function FileUpload() {
   const remainingFields = fields.filter((f) => !isFieldAlreadyUploaded(f));
   const hasNewFiles = fields.some((f) => !!files[f.name] && !isFieldAlreadyUploaded(f));
   const selectedNewFileCount = fields.filter((f) => !!files[f.name] && !isFieldAlreadyUploaded(f)).length;
+  const extractedCount = Object.keys(ocrMap).length;
+  const smartSummary = useMemo(() => {
+    const missing = Array.isArray(verif?.missing) ? verif.missing : [];
+    if (!declarationId) return t.smartSelectDeclaration;
+    if (missing.length > 0) return `${t.smartMissingPrefix} ${missing.join(", ")}.`;
+    if (attached.length > 0 && extractedCount === 0) return t.smartReadyForOcr;
+    if (extractedCount > 0) return `${t.smartExtractedPrefix} ${extractedCount} ${t.smartExtractedSuffix}`;
+    return t.smartUploadToAnalyze;
+  }, [attached.length, declarationId, extractedCount, t, verif]);
 
   // Maintain object URLs for image previews and revoke old ones
   useEffect(() => {
@@ -214,6 +231,9 @@ export default function FileUpload() {
       } else {
         setOk(`${uploadedCount} document(s) uploaded`);
       }
+      if (Array.isArray(res?.documents) && res.documents.length > 0) {
+        await smartAnalyzeDocuments(res.documents, { silent: true });
+      }
       const list = await DocumentsAPI.listByDeclaration(declarationId); setAttached(Array.isArray(list) ? list : []);
       await loadAllDocuments();
       const v = await DocumentsAPI.verify(declarationId); setVerif(v);
@@ -264,9 +284,45 @@ export default function FileUpload() {
     }
   }
 
-  async function extractOcr(a) {
-    try { const res = await SmartAPI.ocrExtract({ document_id: a.document_id, file_name: a.file_name }); setOcrMap((m) => ({ ...m, [a.document_id]: res })); alert(t.ocrCaptured); }
-    catch (e) { alert(e.message || t.ocrFailed); }
+  async function extractOcr(a, { silent = false } = {}) {
+    if (!a?.document_id) return null;
+    setOcrLoadingIds((prev) => new Set(prev).add(a.document_id));
+    try {
+      const res = await SmartAPI.ocrExtract({ document_id: a.document_id, file_name: a.file_name });
+      setOcrMap((m) => ({ ...m, [a.document_id]: res }));
+      if (!silent) alert(t.ocrCaptured);
+      return res;
+    } catch (e) {
+      if (!silent) alert(e.message || t.ocrFailed);
+      return null;
+    } finally {
+      setOcrLoadingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(a.document_id);
+        return next;
+      });
+    }
+  }
+
+  async function smartAnalyzeDocuments(rows, { silent = false } = {}) {
+    const docs = (Array.isArray(rows) ? rows : []).filter((doc) => doc?.document_id);
+    if (!docs.length) {
+      if (!silent) setSmartDocMessage(t.smartNoDocuments);
+      return;
+    }
+    setSmartDocBusy(true);
+    setSmartDocMessage(t.smartAnalyzing);
+    let success = 0;
+    try {
+      for (const doc of docs.slice(0, 12)) {
+        const res = await extractOcr(doc, { silent: true });
+        if (res) success += 1;
+      }
+      setSmartDocMessage(`${t.smartAnalyzed} ${success}/${docs.length}`);
+      if (!silent && success > 0) alert(t.smartAnalysisComplete);
+    } finally {
+      setSmartDocBusy(false);
+    }
   }
 
   const docColumns = [
@@ -297,7 +353,9 @@ export default function FileUpload() {
           <button type="button" disabled={!!verifyingId} onClick={() => verifyHash(a.document_id)}>
             {verifyingId === a.document_id ? t.verifying : t.verify}
           </button>
-          <button type="button" onClick={() => extractOcr(a)}>{t.extract}</button>
+          <button type="button" disabled={ocrLoadingIds.has(a.document_id)} onClick={() => extractOcr(a)}>
+            {ocrLoadingIds.has(a.document_id) ? t.extracting : t.extract}
+          </button>
         </span>
       )
     },
@@ -309,6 +367,16 @@ export default function FileUpload() {
   const uploadedRecords = (
     <div className="fileupload-records">
       <h3 className="fileupload-records__title">{t.fullUploadedRecords || t.attachedDocs}</h3>
+      <div className="fileupload-smart-panel">
+        <div>
+          <div className="fileupload-smart-panel__title">{t.smartDocumentSystem}</div>
+          <div className="fileupload-smart-panel__body">{smartSummary}</div>
+          {smartDocMessage && <div className="fileupload-smart-panel__meta">{smartDocMessage}</div>}
+        </div>
+        <button type="button" onClick={() => smartAnalyzeDocuments(uploadedRows)} disabled={smartDocBusy || uploadedRows.length === 0}>
+          {smartDocBusy ? t.smartAnalyzing : t.smartAnalyze}
+        </button>
+      </div>
       {recordsLoading && (
         <div style={{ paddingTop: 8 }}><SkeletonTable rows={3} cols={6} /></div>
       )}
@@ -479,6 +547,19 @@ const EN = {
   verifying: "Verifying...",
   verify: "Verify",
   extract: "Extract",
+  extracting: "Extracting...",
+  smartDocumentSystem: "Smart Document System",
+  smartAnalyze: "Smart Analyze",
+  smartAnalyzing: "Analyzing...",
+  smartAnalyzed: "Smart analyzed",
+  smartAnalysisComplete: "Smart document analysis complete",
+  smartNoDocuments: "No documents available for smart analysis.",
+  smartSelectDeclaration: "Select a declaration to see required documents and smart suggestions.",
+  smartMissingPrefix: "Missing required documents:",
+  smartReadyForOcr: "Documents are attached. Run Smart Analyze to classify and extract key fields.",
+  smartExtractedPrefix: "Smart extraction captured",
+  smartExtractedSuffix: "document record(s). Review the OCR results below.",
+  smartUploadToAnalyze: "Upload documents to start smart classification and extraction.",
   dropHelp: "Drag & drop files here to auto-detect types (PDF/JPG/PNG, up to 5MB)",
   declaration: "Declaration",
   selectDeclaration: "Select declaration...",
@@ -535,6 +616,19 @@ const AM = {
   verifying: "በማረጋገጥ ላይ...",
   verify: "አረጋግጥ",
   extract: "አውጣ",
+  extracting: "Extracting...",
+  smartDocumentSystem: "Smart Document System",
+  smartAnalyze: "Smart Analyze",
+  smartAnalyzing: "Analyzing...",
+  smartAnalyzed: "Smart analyzed",
+  smartAnalysisComplete: "Smart document analysis complete",
+  smartNoDocuments: "No documents available for smart analysis.",
+  smartSelectDeclaration: "Select a declaration to see required documents and smart suggestions.",
+  smartMissingPrefix: "Missing required documents:",
+  smartReadyForOcr: "Documents are attached. Run Smart Analyze to classify and extract key fields.",
+  smartExtractedPrefix: "Smart extraction captured",
+  smartExtractedSuffix: "document record(s). Review the OCR results below.",
+  smartUploadToAnalyze: "Upload documents to start smart classification and extraction.",
   dropHelp: "ፋይሎችን ወደዚህ ጎትተው ይጣሉ አይነት በራስ-ሰር እንዲለይ (PDF/JPG/PNG, እስከ 5MB)",
   declaration: "መግለጫ",
   selectDeclaration: "መግለጫ ይምረጡ...",
