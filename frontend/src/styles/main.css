@@ -784,7 +784,7 @@ a {
   padding: 0 14px;
   border: 0;
   border-radius: 10px;
-  background: #0b6e4f;
+  background: #2c65a5;
   color: #ffffff;
   font-weight: 700;
 }
@@ -792,7 +792,7 @@ a {
 .locations-page-form button:hover,
 .locations-page-tools button:hover,
 .locations-import-panel button:hover {
-  background: #095b41;
+  background: #24558c;
 }
 
 .locations-page-tableWrap {
