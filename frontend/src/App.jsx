@@ -12,6 +12,7 @@ import Footer from "./components/Footer.jsx";
 import FabAssistant from "./components/FabAssistant.jsx";
 import MobileTabs from "./components/MobileTabs.jsx";
 import ResponsiveTables from "./components/ResponsiveTables.jsx";
+import Loader from "./components/Loader.jsx";
 import Login from "./pages/Login.jsx";
 import Navbar from "./components/Navbar.jsx";
 import BackgroundHero from "./components/BackgroundHero.jsx";
@@ -325,7 +326,7 @@ function AppContent() {
       <ImporterOnboardingGuard />
       <main className="app-main">
         <GlobalHotkeys />
-        <Suspense fallback={<div style={{ padding: 16 }}>{t("loading")}</div>}>
+        <Suspense fallback={<Loader label={t("loading")} fullPage />}>
           <Routes>
             <Route path="/" element={<HomeRedirect />} />
             <Route path="/home" element={<AuthenticatedPortalHome />} />

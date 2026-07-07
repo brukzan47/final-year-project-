@@ -59,6 +59,35 @@ a {
   color: inherit;
 }
 
+.app-loader {
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 12px;
+  padding: 32px 16px;
+  color: #172033;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.app-loader--full {
+  min-height: calc(100vh - 96px);
+}
+
+.app-loader__icon {
+  width: 34px;
+  height: 34px;
+  color: #2c65a5;
+  animation: app-loader-spin 0.8s linear infinite;
+}
+
+@keyframes app-loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .app-system-shell {
   min-height: 100vh;
   background: transparent;

@@ -6,7 +6,52 @@
     <title>Ethiopian Import Customs</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <style>
+        .initial-loader {
+          min-height: 100vh;
+          display: grid;
+          place-items: center;
+          background: #f4f7fb;
+          color: #172033;
+          font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .initial-loader__box {
+          display: inline-flex;
+          align-items: center;
+          gap: 12px;
+          padding: 14px 18px;
+          border: 1px solid #d7e3f3;
+          border-radius: 12px;
+          background: #ffffff;
+          box-shadow: 0 16px 38px rgba(28, 45, 74, 0.12);
+          font-size: 15px;
+          font-weight: 700;
+        }
+
+        .initial-loader__icon {
+          width: 24px;
+          height: 24px;
+          border: 3px solid #d7e3f3;
+          border-top-color: #2c65a5;
+          border-radius: 999px;
+          animation: initial-loader-spin 0.8s linear infinite;
+        }
+
+        @keyframes initial-loader-spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      </style>
+      <div class="initial-loader" role="status" aria-live="polite">
+        <div class="initial-loader__box">
+          <span class="initial-loader__icon" aria-hidden="true"></span>
+          <span>Loading...</span>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
   </html>
