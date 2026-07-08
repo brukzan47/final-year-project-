@@ -314,8 +314,9 @@ a {
   justify-content: space-between;
   gap: 16px;
   padding: 10px 18px;
-  border-bottom: 1px solid #e5e7eb;
-  background: rgba(255, 255, 255, 0.98);
+  border-bottom: 1px solid rgba(191, 219, 254, 0.24);
+  background: linear-gradient(135deg, #12335a, #2c65a5);
+  color: #ffffff;
 }
 
 .brand-header-main,
@@ -349,13 +350,13 @@ a {
 
 .brand-header-wordmark span {
   font-size: 12px;
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.76);
 }
 
 .brand-header-wordmark strong {
   font-size: 16px;
   font-weight: 850;
-  color: #14213d;
+  color: #ffffff;
 }
 
 .brand-header-commission {
@@ -376,7 +377,7 @@ a {
   font-size: 12px;
   font-weight: 800;
   line-height: 1.15;
-  color: #334155;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .brand-header-logo img {
@@ -601,16 +602,16 @@ a {
 }
 
 .topbar-account-actions--header .topbar-btn {
-  background: transparent;
-  color: #000000;
-  border: 0;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.24);
 }
 
 .topbar-account-actions--header .topbar-btn:hover,
 .topbar-account-actions--header .topbar-btn:focus-visible {
-  background: transparent;
-  color: #111111;
-  border: 0;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.38);
 }
 
 .profile-page-shell {
@@ -935,12 +936,18 @@ a {
 
 .smart-analytics-page-panel .chart-card {
   border-radius: 6px;
-  padding: 8px;
+  width: 100%;
+  max-width: 280px;
+  padding: 6px;
+  justify-self: center;
 }
 
 .smart-analytics-page-panel .analytics-section {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  align-items: stretch;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px, 280px));
+  justify-content: center;
+  align-items: start;
+  gap: 8px;
 }
 
 .smart-analytics-page-panel .chart-card-head {
@@ -953,19 +960,21 @@ a {
 }
 
 .smart-analytics-page-panel .smart-analytics-chart {
-  height: 128px;
-  min-height: 0;
-  max-height: 128px;
-  padding: 0 2px 4px;
+  height: 96px;
+  min-height: 96px;
+  max-height: 96px;
+  padding: 0;
+  overflow: hidden;
 }
 
 .smart-analytics-page-panel .smart-analytics-chart canvas {
-  max-height: 128px;
+  height: 96px !important;
+  max-height: 96px;
 }
 
 @media (max-width: 980px) {
   .smart-analytics-page-panel .analytics-section {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(210px, 260px));
   }
 }
 
@@ -988,29 +997,38 @@ a {
   }
 
   .smart-analytics-page-panel .analytics-section {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 240px);
+    justify-content: center;
+    gap: 8px;
   }
 
   .smart-analytics-page-panel .smart-analytics-chart {
-    height: 116px;
-    min-height: 0;
-    max-height: 116px;
-    padding: 0 1px 4px;
+    height: 88px;
+    min-height: 88px;
+    max-height: 88px;
+    padding: 0;
   }
 
   .smart-analytics-page-panel .smart-analytics-chart canvas {
-    max-height: 116px;
+    height: 88px !important;
+    max-height: 88px;
   }
 }
 
 @media (max-width: 420px) {
+  .smart-analytics-page-panel .analytics-section {
+    grid-template-columns: minmax(0, 220px);
+  }
+
   .smart-analytics-page-panel .smart-analytics-chart {
-    height: 104px;
-    max-height: 104px;
+    height: 80px;
+    min-height: 80px;
+    max-height: 80px;
   }
 
   .smart-analytics-page-panel .smart-analytics-chart canvas {
-    max-height: 104px;
+    height: 80px !important;
+    max-height: 80px;
   }
 }
 
