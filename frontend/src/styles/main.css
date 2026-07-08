@@ -302,9 +302,9 @@ a {
   position: sticky;
   top: 0;
   z-index: 100;
-  color: #ffffff;
-  background: linear-gradient(135deg, #12335a, #2c65a5);
-  border-bottom: 1px solid rgba(191, 219, 254, 0.24);
+  color: #14213d;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
   box-shadow: 0 10px 24px rgba(18, 51, 90, 0.14);
 }
 
@@ -314,9 +314,8 @@ a {
   justify-content: space-between;
   gap: 16px;
   padding: 10px 18px;
-  border-bottom: 1px solid rgba(191, 219, 254, 0.24);
-  background: linear-gradient(135deg, #12335a, #2c65a5);
-  color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.98);
 }
 
 .brand-header-main,
@@ -350,13 +349,13 @@ a {
 
 .brand-header-wordmark span {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.76);
+  color: #64748b;
 }
 
 .brand-header-wordmark strong {
   font-size: 16px;
   font-weight: 850;
-  color: #ffffff;
+  color: #14213d;
 }
 
 .brand-header-commission {
@@ -377,7 +376,7 @@ a {
   font-size: 12px;
   font-weight: 800;
   line-height: 1.15;
-  color: rgba(255, 255, 255, 0.9);
+  color: #334155;
 }
 
 .brand-header-logo img {
@@ -409,10 +408,10 @@ a {
   grid-template-columns: 1fr;
   gap: 12px;
   padding: 12px;
-  background: linear-gradient(160deg, #12335a, #2c65a5);
-  color: #ffffff;
-  border: 1px solid rgba(191, 219, 254, 0.28);
-  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.26);
+  background: #ffffff;
+  color: #1f2937;
+  border-top: 1px solid rgba(203, 213, 225, 0.95);
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.14);
   max-height: calc(100vh - 12px);
   overflow-y: auto;
 }
@@ -535,7 +534,7 @@ a {
   font-weight: 800;
   letter-spacing: 0;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.78);
+  color: #475569;
 }
 
 .topbar-actions__item,
@@ -546,10 +545,10 @@ a {
   align-items: center;
   gap: 8px;
   padding: 0 10px;
-  border: 1px solid rgba(191, 219, 254, 0.28);
+  border: 1px solid rgba(203, 213, 225, 0.85);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
+  background: #ffffff;
+  color: #1f2937;
   text-align: left;
   font-weight: 600;
   text-decoration: none;
@@ -557,8 +556,7 @@ a {
 
 .topbar-actions__item:hover,
 .topbar-menu__action:hover {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.42);
+  background: rgba(11, 110, 79, 0.08);
 }
 
 .topbar-actions__languageRow,
@@ -603,16 +601,16 @@ a {
 }
 
 .topbar-account-actions--header .topbar-btn {
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: transparent;
+  color: #000000;
+  border: 0;
 }
 
 .topbar-account-actions--header .topbar-btn:hover,
 .topbar-account-actions--header .topbar-btn:focus-visible {
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.38);
+  background: transparent;
+  color: #111111;
+  border: 0;
 }
 
 .profile-page-shell {
