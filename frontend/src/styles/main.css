@@ -409,10 +409,10 @@ a {
   grid-template-columns: 1fr;
   gap: 12px;
   padding: 12px;
-  background: #ffffff;
-  color: #1f2937;
-  border-top: 1px solid rgba(203, 213, 225, 0.95);
-  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.14);
+  background: linear-gradient(160deg, #12335a, #2c65a5);
+  color: #ffffff;
+  border: 1px solid rgba(191, 219, 254, 0.28);
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.26);
   max-height: calc(100vh - 12px);
   overflow-y: auto;
 }
@@ -535,7 +535,7 @@ a {
   font-weight: 800;
   letter-spacing: 0;
   text-transform: uppercase;
-  color: #475569;
+  color: rgba(255, 255, 255, 0.78);
 }
 
 .topbar-actions__item,
@@ -546,10 +546,10 @@ a {
   align-items: center;
   gap: 8px;
   padding: 0 10px;
-  border: 1px solid rgba(203, 213, 225, 0.85);
+  border: 1px solid rgba(191, 219, 254, 0.28);
   border-radius: 10px;
-  background: #ffffff;
-  color: #1f2937;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
   text-align: left;
   font-weight: 600;
   text-decoration: none;
@@ -557,7 +557,8 @@ a {
 
 .topbar-actions__item:hover,
 .topbar-menu__action:hover {
-  background: rgba(11, 110, 79, 0.08);
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.42);
 }
 
 .topbar-actions__languageRow,
