@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { DeclarationsAPI } from "../api/declarationAPI.js";
 import { DocumentsAPI } from "../api/documentAPI.js";
 import { SmartAPI } from "../api/smartAPI.js";
-import { useAuth } from "../context/AuthContext.jsx";
 import { useLanguage } from "../context/LanguageContext.jsx";
 import { SkeletonText, SkeletonTable } from "../components/Skeleton.jsx";
 import EmptyState from "../components/EmptyState.jsx";
@@ -30,7 +30,7 @@ function smartDocLabel(type = "") {
 export default function FileUpload() {
   const { lang } = useLanguage();
   const t = lang === "am" ? AM : EN;
-  const { role } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [declarations, setDeclarations] = useState([]);
   const [declarationId, setDeclarationId] = useState("");
   const [files, setFiles] = useState({});
@@ -38,7 +38,6 @@ export default function FileUpload() {
   const [ok, setOk] = useState("");
   const [verif, setVerif] = useState(null);
   const [attached, setAttached] = useState([]);
-  const [allUploaded, setAllUploaded] = useState([]);
   const [loadingDocs, setLoadingDocs] = useState(false);
   const [verifyingId, setVerifyingId] = useState("");
   const [anchoringId, setAnchoringId] = useState("");
@@ -52,28 +51,28 @@ export default function FileUpload() {
   const [ocrLoadingIds, setOcrLoadingIds] = useState(new Set());
   const [smartDocBusy, setSmartDocBusy] = useState(false);
   const [smartDocMessage, setSmartDocMessage] = useState("");
-  const [eligibleDeclarationIds, setEligibleDeclarationIds] = useState(new Set());
   const [docPreview, setDocPreview] = useState(null);
   const [docPreviewSize, setDocPreviewSize] = useState("mini");
   const [docPreviewLoading, setDocPreviewLoading] = useState(false);
 
   const [loadingDecls, setLoadingDecls] = useState(true);
+  const declarationParam = searchParams.get("declaration_id") || "";
 
-  async function loadAllDocuments() {
-    try {
-      setLoadingDocs(true);
-      const list = await DocumentsAPI.list();
-      setAllUploaded(Array.isArray(list) ? list : []);
-    } catch {
-      setAllUploaded([]);
-    } finally {
-      setLoadingDocs(false);
-    }
+  function selectDeclaration(value) {
+    setDeclarationId(value);
+    setFiles({});
+    setErr("");
+    setOk("");
+    setOcrMap({});
+    if (value) setSearchParams({ declaration_id: value }, { replace: true });
+    else setSearchParams({}, { replace: true });
   }
 
   useEffect(() => {
-    loadAllDocuments();
-  }, []);
+    if (declarationParam && declarationParam !== declarationId) {
+      setDeclarationId(declarationParam);
+    }
+  }, [declarationParam, declarationId]);
 
   useEffect(() => {
     (async () => {
@@ -86,7 +85,6 @@ export default function FileUpload() {
     (async () => {
       try {
         if (!Array.isArray(declarations) || declarations.length === 0) {
-          setEligibleDeclarationIds(new Set());
           return;
         }
         const checks = await Promise.all(
@@ -100,8 +98,7 @@ export default function FileUpload() {
           })
         );
         const eligible = new Set(checks.filter((c) => !c.ok).map((c) => String(c.id)));
-        setEligibleDeclarationIds(eligible);
-        if (!declarationId) {
+        if (!declarationId && !declarationParam) {
           const first = declarations.find((d) => eligible.has(String(d.declaration_id)));
           if (first) setDeclarationId(String(first.declaration_id));
         }
@@ -113,11 +110,17 @@ export default function FileUpload() {
     if (!declarationId) { setAttached([]); setVerif(null); return; }
     (async () => {
       try {
+        setLoadingDocs(true);
         const list = await DocumentsAPI.listByDeclaration(declarationId);
         setAttached(Array.isArray(list) ? list : []);
         const v = await DocumentsAPI.verify(declarationId);
         setVerif(v);
-      } catch {}
+      } catch {
+        setAttached([]);
+        setVerif(null);
+      } finally {
+        setLoadingDocs(false);
+      }
     })();
   }, [declarationId]);
 
@@ -235,7 +238,6 @@ export default function FileUpload() {
         await smartAnalyzeDocuments(res.documents, { silent: true });
       }
       const list = await DocumentsAPI.listByDeclaration(declarationId); setAttached(Array.isArray(list) ? list : []);
-      await loadAllDocuments();
       const v = await DocumentsAPI.verify(declarationId); setVerif(v);
       setFiles({}); const formEl = document.getElementById('fileupload-form'); try { formEl?.reset?.(); } catch {}
     } catch (e2) { setErr(e2.message || t.uploadFailed); } finally { setLoading(false); }
@@ -249,7 +251,6 @@ export default function FileUpload() {
         const list = await DocumentsAPI.listByDeclaration(declarationId);
         setAttached(Array.isArray(list) ? list : []);
       }
-      await loadAllDocuments();
     }
     catch (e) { alert(e.message || t.anchorFailed); }
     finally { setAnchoringId(""); }
@@ -361,12 +362,12 @@ export default function FileUpload() {
     },
   ];
 
-  const uploadedRows = allUploaded.length > 0 || !declarationId ? allUploaded : attached;
+  const uploadedRows = declarationId ? attached : [];
   const recordsLoading = loadingDocs || (declarationId && loading);
 
   const uploadedRecords = (
     <div className="fileupload-records">
-      <h3 className="fileupload-records__title">{t.fullUploadedRecords || t.attachedDocs}</h3>
+      <h3 className="fileupload-records__title">{declarationId ? t.declarationUploadedRecords : t.selectDeclarationRecords}</h3>
       <div className="fileupload-smart-panel">
         <div>
           <div className="fileupload-smart-panel__title">{t.smartDocumentSystem}</div>
@@ -440,10 +441,9 @@ export default function FileUpload() {
           <form id="fileupload-form" onSubmit={submit} className="fileupload-form">
             <label style={{ display: 'grid', gap: 6 }}>
               <span style={{ fontSize: 13 }}>{t.declaration}</span>
-              <select value={declarationId} onChange={(e)=> setDeclarationId(e.target.value)} style={{ padding: 10, border: '1px solid #ccc', borderRadius: 6, background: '#fff', color: '#000' }}>
+              <select value={declarationId} onChange={(e)=> selectDeclaration(e.target.value)} style={{ padding: 10, border: '1px solid #ccc', borderRadius: 6, background: '#fff', color: '#000' }}>
                 <option value="">{t.selectDeclaration}</option>
                 {declarations
-                  .filter((d) => eligibleDeclarationIds.size === 0 || eligibleDeclarationIds.has(String(d.declaration_id)))
                   .map(d => (<option key={d.declaration_id} value={d.declaration_id}>{d.declaration_no || d.declaration_id}</option>))}
               </select>
               {loadingDecls && (<div style={{ marginTop: 6 }}><SkeletonText lines={2} /></div>)}
@@ -501,7 +501,7 @@ export default function FileUpload() {
             </button>
           </form>
         </SandboxPanel>
-        <SandboxPanel kicker="" title={t.fullUploadedRecords || t.attachedDocs} chips={[t.attachedDocs, t.documentPreview, t.ocrExtracts]}>
+        <SandboxPanel kicker="" title={declarationId ? t.declarationUploadedRecords : t.attachedDocs} chips={[t.attachedDocs, t.documentPreview, t.ocrExtracts]}>
           {uploadedRecords}
         </SandboxPanel>
       </div>
@@ -583,6 +583,8 @@ const EN = {
   missing: "Missing",
   attachedDocs: "Attached Documents",
   fullUploadedRecords: "Full Uploaded Records",
+  declarationUploadedRecords: "Documents for Selected Declaration",
+  selectDeclarationRecords: "Select a declaration to view documents",
   documentPreview: "Document Preview",
   selectDocumentToPreview: "Select a document to preview.",
   loadingDocument: "Loading document...",
@@ -650,6 +652,8 @@ const AM = {
   missing: "የጎደለ",
   attachedDocs: "የተያያዙ ሰነዶች",
   fullUploadedRecords: "Full Uploaded Records",
+  declarationUploadedRecords: "Documents for Selected Declaration",
+  selectDeclarationRecords: "Select a declaration to view documents",
   documentPreview: "Document Preview",
   selectDocumentToPreview: "Select a document to preview.",
   loadingDocument: "Loading document...",
