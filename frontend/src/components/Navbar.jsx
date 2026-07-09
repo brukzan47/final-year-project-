@@ -16,7 +16,7 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
-  const { token, role, logout } = useAuth();
+  const { token, role, name, logout } = useAuth();
   const { t, lang, setLang } = useLanguage();
 
   useEffect(() => {
