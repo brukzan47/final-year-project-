@@ -349,7 +349,7 @@ function AppContent() {
         <Suspense fallback={<Loader label={t("loading")} fullPage />}>
           <Routes>
             <Route path="/" element={<HomeRedirect />} />
-            <Route path="/home" element={<AuthenticatedPortalHome />} />
+            <Route path="/home" element={<Home />} />
             <Route path="/importers" element={<ProtectedRoute roles={["Super Admin","Admin","Customs Officer","Importer"]} unauthorized={<h3>{t("unauthorized")}</h3>}><ImporterForm /></ProtectedRoute>} />
             <Route path="/shipments" element={<ProtectedRoute roles={ROLE_GROUPS.tracking}><ShipmentForm /></ProtectedRoute>} />
             <Route path="/declarations" element={<ProtectedRoute roles={ROLE_GROUPS.declarationEntry}><DeclarationForm /></ProtectedRoute>} />
