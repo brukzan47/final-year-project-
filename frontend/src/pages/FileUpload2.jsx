@@ -14,11 +14,7 @@ const fields = [
   { name: "commercial_invoice", label: "Commercial Invoice" },
   { name: "packing_list", label: "Packing List" },
   { name: "bill_of_lading", label: "Bill of Lading" },
-  { name: "airway_bill", label: "Airway Bill" },
   { name: "certificate_of_origin", label: "Certificate of Origin" },
-  { name: "import_permit", label: "Import Permit" },
-  { name: "letter_of_credit", label: "Letter of Credit" },
-  { name: "insurance_certificate", label: "Insurance Certificate" },
 ];
 const MAX_FILES_PER_UPLOAD = 5;
 const FIELD_LABEL_BY_NAME = Object.fromEntries(fields.map((field) => [field.name, field.label]));
@@ -180,11 +176,7 @@ export default function FileUpload() {
     if (/invoice|commercial/.test(n)) return "commercial_invoice";
     if (/packing/.test(n)) return "packing_list";
     if (/bill[_-]?of[_-]?lading|bol|lading/.test(n)) return "bill_of_lading";
-    if (/airway|awb/.test(n)) return "airway_bill";
     if (/certificate[_-]?of[_-]?origin|coo/.test(n)) return "certificate_of_origin";
-    if (/import[_-]?permit|permit/.test(n)) return "import_permit";
-    if (/letter[_-]?of[_-]?credit|lc/.test(n)) return "letter_of_credit";
-    if (/insurance/.test(n)) return "insurance_certificate";
     return null;
   }
 

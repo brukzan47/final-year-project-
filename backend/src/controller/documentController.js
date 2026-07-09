@@ -162,10 +162,8 @@ export const verifyRequired = async (req, res) => {
     const requirements = [
       { key: 'commercial_invoice', label: 'Commercial Invoice', anyOf: ['commercial invoice'] },
       { key: 'packing_list', label: 'Packing List', anyOf: ['packing list'] },
-      { key: 'transport_doc', label: 'Bill of Lading / Airway Bill', anyOf: ['bill of lading', 'airway bill'] },
+      { key: 'bill_of_lading', label: 'Bill of Lading', anyOf: ['bill of lading'] },
       { key: 'certificate_of_origin', label: 'Certificate of Origin', anyOf: ['certificate of origin'] },
-      { key: 'permit_or_lc', label: 'Import Permit / Letter of Credit', anyOf: ['import permit', 'letter of credit'] },
-      { key: 'insurance_certificate', label: 'Insurance Certificate', anyOf: ['insurance certificate'] },
     ];
 
     const missing = [];

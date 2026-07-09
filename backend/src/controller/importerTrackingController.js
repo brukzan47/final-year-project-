@@ -81,10 +81,8 @@ async function requiredDocsStatus(declaration_id) {
   const requirements = [
     { label: "Commercial Invoice", anyOf: ["commercial invoice"] },
     { label: "Packing List", anyOf: ["packing list"] },
-    { label: "Bill of Lading / Airway Bill", anyOf: ["bill of lading", "airway bill"] },
+    { label: "Bill of Lading", anyOf: ["bill of lading"] },
     { label: "Certificate of Origin", anyOf: ["certificate of origin"] },
-    { label: "Import Permit / Letter of Credit", anyOf: ["import permit", "letter of credit"] },
-    { label: "Insurance Certificate", anyOf: ["insurance certificate"] },
   ];
   const missing = [];
   for (const reqItem of requirements) {
