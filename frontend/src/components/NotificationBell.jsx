@@ -58,7 +58,7 @@ function getNotificationRoute(item, role) {
     if (role === "Importer") return "";
   }
   if (category === "INSPECTION") {
-    if (role === "Customs Officer" || role === "Inspector") return withParams("/inspections", item);
+    if (role === "Customs Officer") return withParams("/inspections", item);
     if (isAdminRole) return withParams("/declarations-admin", item);
   }
   if (category === "CLEARANCE") {

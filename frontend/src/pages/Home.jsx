@@ -20,7 +20,6 @@ const quickStats = [
 const primaryByRole = {
   Importer: ["/my-tracking", "/shipments", "/declarations", "/payments"],
   "Finance Officer": ["/finance", "/payments", "/reports"],
-  Inspector: ["/inspections", "/search", "/notifications-admin"],
   "Clearance Officer": ["/clearance", "/search", "/reports"],
   "Port Officer": ["/shipments", "/devices", "/locations"],
   "Risk Analyst": ["/smart-analytics", "/search", "/reports"],

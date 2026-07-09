@@ -7,10 +7,10 @@ import { validateInspection } from "../middleware/inspectionValidation.js";
 const router = express.Router();
 
 // GET all inspections
-router.get("/", verifyToken, authorizeRoles("Admin", "Customs Officer", "Inspector"), getInspections);
+router.get("/", verifyToken, authorizeRoles("Admin", "Customs Officer"), getInspections);
 
 // POST new inspection record
-router.post("/", verifyToken, authorizeRoles("Customs Officer", "Admin", "Inspector"), validateInspection, createInspection);
+router.post("/", verifyToken, authorizeRoles("Customs Officer", "Admin"), validateInspection, createInspection);
 
 export default router;
 
