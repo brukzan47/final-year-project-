@@ -141,9 +141,7 @@ function GlobalHotkeys() {
 }
 
 function HomeRedirect() {
-  const { role } = useAuth();
-  const to = role === "Finance Officer" ? "/finance" : "/home";
-  return <Navigate to={to} replace />;
+  return <Navigate to="/home" replace />;
 }
 
 function ImporterOnboardingGuard() {
@@ -152,6 +150,7 @@ function ImporterOnboardingGuard() {
 
   if (!token || role !== "Importer") return null;
   if (importerId) return null;
+  if (location.pathname === "/home") return null;
   if (location.pathname === "/importers") return null;
 
   return <Navigate to="/importers" replace />;
