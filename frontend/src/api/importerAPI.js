@@ -1,5 +1,14 @@
 import { api } from "./client.js";
 
+function cleanImporterPayload(payload = {}) {
+  return Object.fromEntries(
+    Object.entries(payload).map(([key, value]) => [
+      key,
+      typeof value === "string" ? value.trim() : value,
+    ]).filter(([, value]) => value !== "" && value !== null && value !== undefined)
+  );
+}
+
 export const ImportersAPI = {
   list: async () => {
     try {
@@ -12,12 +21,14 @@ export const ImportersAPI = {
     }
   },
   create: async (payload) => {
+    const body = cleanImporterPayload(payload);
     try {
-      return await api.post("/importers", payload);
+      return await api.post("/importers", body);
     } catch (e) {
-      if (String(e.message).toLowerCase().includes("access denied")) {
+      const msg = String(e.message || "").toLowerCase();
+      if (msg.includes("access denied") || msg.includes("not allowed") || msg.includes("403")) {
         // Fallback for Importer role
-        return await api.post("/importers/self", payload);
+        return await api.post("/importers/self", body);
       }
       throw e;
     }

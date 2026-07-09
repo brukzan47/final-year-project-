@@ -47,6 +47,18 @@ export function AuthProvider({ children }) {
     } catch {}
   }, []);
 
+  const refreshMe = async () => {
+    const me = await getMe();
+    const storage = localStorage.getItem("auth") ? localStorage : sessionStorage;
+    storage.setItem("me", JSON.stringify(me));
+    setImporterId(me?.importer_id || null);
+    if (me?.role) setRole(canonicalRoleName(me.role));
+    if (me?.name) setName(me.name);
+    if (me?.email) setEmail(me.email);
+    if (me?.preferred_language) setPreferredLanguage(me.preferred_language === "am" ? "am" : "en");
+    return me;
+  };
+
   const login = async (email, password, remember = true) => {
     const res = await loginAPI(email, password);
     if (!hasValue(res?.token)) {
@@ -69,10 +81,7 @@ export function AuthProvider({ children }) {
     setPreferredLanguage(res.preferred_language === "am" ? "am" : "en");
 
     try {
-      const me = await getMe();
-      storage.setItem("me", JSON.stringify(me));
-      setImporterId(me?.importer_id || null);
-      if (me?.preferred_language) setPreferredLanguage(me.preferred_language === "am" ? "am" : "en");
+      await refreshMe();
     } catch {}
     return res;
   };
@@ -87,7 +96,7 @@ export function AuthProvider({ children }) {
     clearStoredAuth();
   };
 
-  const value = useMemo(() => ({ token, role, name, email, preferredLanguage, importerId, login, logout }), [token, role, name, email, preferredLanguage, importerId]);
+  const value = useMemo(() => ({ token, role, name, email, preferredLanguage, importerId, login, logout, refreshMe }), [token, role, name, email, preferredLanguage, importerId]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

@@ -19,7 +19,7 @@ const OTHER_VALUE = "__OTHER__";
 
 export default function ImporterForm() {
   const navigate = useNavigate();
-  const { role, importerId } = useAuth();
+  const { role, importerId, refreshMe } = useAuth();
   const { lang } = useLanguage();
   const t = lang === "am" ? AM : EN;
   const [f, set] = useState({
@@ -95,6 +95,9 @@ export default function ImporterForm() {
     }
     try {
       await ImportersAPI.create(f);
+      try {
+        await refreshMe?.();
+      } catch {}
       set({
         company_name: "",
         tin_number: "",
