@@ -7,9 +7,7 @@ import { ThemeProvider } from "./context/ThemeContext.jsx";
 import { LanguageProvider } from "./context/LanguageContext.jsx";
 import { useLanguage } from "./context/LanguageContext.jsx";
 import Toaster from "./components/Toaster.jsx";
-import CommandPalette from "./components/CommandPalette.jsx";
 import Footer from "./components/Footer.jsx";
-import FabAssistant from "./components/FabAssistant.jsx";
 import MobileTabs from "./components/MobileTabs.jsx";
 import ResponsiveTables from "./components/ResponsiveTables.jsx";
 import Loader from "./components/Loader.jsx";
@@ -45,6 +43,8 @@ const Locations = React.lazy(() => import("./pages/Locations.jsx"));
 const FileUpload = React.lazy(() => import("./pages/FileUpload2.jsx"));
 const AboutUser = React.lazy(() => import("./pages/AboutUser.jsx"));
 const UiShowcase = React.lazy(() => import("./pages/UiShowcase.jsx"));
+const CommandPalette = React.lazy(() => import("./components/CommandPalette.jsx"));
+const FabAssistant = React.lazy(() => import("./components/FabAssistant.jsx"));
 
 const PUBLIC_PORTAL_PAGES = {
   "/home": {
@@ -219,6 +219,27 @@ function ConditionalFooter() {
   return <Footer />;
 }
 
+function IdleMount({ children, timeout = 1200 }) {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    let idleId = null;
+    let timeoutId = null;
+    const mount = () => setReady(true);
+    if ("requestIdleCallback" in window) {
+      idleId = window.requestIdleCallback(mount, { timeout });
+    } else {
+      timeoutId = window.setTimeout(mount, Math.min(timeout, 800));
+    }
+    return () => {
+      if (idleId && "cancelIdleCallback" in window) window.cancelIdleCallback(idleId);
+      if (timeoutId) window.clearTimeout(timeoutId);
+    };
+  }, [timeout]);
+
+  return ready ? children : null;
+}
+
 function PublicPortalPreview({ pageKey, title, subtitle }) {
   const navigate = useNavigate();
   const { t } = useLanguage();
@@ -359,7 +380,11 @@ function AppContent() {
           </Routes>
         </Suspense>
       </main>
-      <FabAssistant />
+      <IdleMount>
+        <Suspense fallback={null}>
+          <FabAssistant />
+        </Suspense>
+      </IdleMount>
       <ConditionalMobileTabs />
       <ConditionalFooter />
     </div>
@@ -373,7 +398,11 @@ function AppShell() {
         <ToastProvider>
           <ResponsiveTables />
           <Toaster />
-          <CommandPalette />
+          <IdleMount>
+            <Suspense fallback={null}>
+              <CommandPalette />
+            </Suspense>
+          </IdleMount>
           <ConditionalNavbar />
           <ActiveNotificationPanel />
           <AppContent />

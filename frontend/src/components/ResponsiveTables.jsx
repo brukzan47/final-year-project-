@@ -8,14 +8,8 @@ export default function ResponsiveTables() {
     let timeoutId = null;
     let queuedTables = new Set();
     let annotateAll = false;
-
-    const isSmallScreen = () => {
-      try {
-        return window.matchMedia("(max-width: 760px)").matches;
-      } catch {
-        return true;
-      }
-    };
+    let observer = null;
+    const media = window.matchMedia?.("(max-width: 760px)") || { matches: true };
 
     const collectTables = (node) => {
       if (!node || node.nodeType !== 1) return [];
@@ -47,7 +41,7 @@ export default function ResponsiveTables() {
       pending = false;
       idleId = null;
       timeoutId = null;
-      if (!isSmallScreen()) {
+      if (!media.matches) {
         queuedTables.clear();
         annotateAll = false;
         return;
@@ -63,7 +57,7 @@ export default function ResponsiveTables() {
     };
 
     const scheduleAnnotate = (tables = []) => {
-      if (!isSmallScreen()) return;
+      if (!media.matches) return;
       tables.forEach((table) => queuedTables.add(table));
       if (pending) return;
       pending = true;
@@ -79,33 +73,53 @@ export default function ResponsiveTables() {
       scheduleAnnotate();
     };
 
-    const onResize = () => {
-      if (isSmallScreen()) scheduleAll();
-    };
-
-    if (isSmallScreen()) {
-      annotateAll = true;
-      annotate();
-    }
-    window.addEventListener("resize", onResize);
-    const observer = new MutationObserver((mutations) => {
-      const tables = [];
-      mutations.forEach((mutation) => {
-        mutation.addedNodes?.forEach((node) => {
-          tables.push(...collectTables(node));
-        });
-      });
-      if (tables.length) scheduleAnnotate(tables);
-    });
-    try {
-      observer.observe(document.body, { childList: true, subtree: true });
-    } catch {}
-    return () => {
-      window.removeEventListener("resize", onResize);
+    const cancelPending = () => {
       if (idleId && "cancelIdleCallback" in window) window.cancelIdleCallback(idleId);
       if (timeoutId) window.clearTimeout(timeoutId);
+      idleId = null;
+      timeoutId = null;
+      pending = false;
+    };
+
+    const stopObserver = () => {
+      cancelPending();
       queuedTables.clear();
-      try { observer.disconnect(); } catch {}
+      annotateAll = false;
+      try { observer?.disconnect(); } catch {}
+      observer = null;
+    };
+
+    const startObserver = () => {
+      if (observer || !media.matches) return;
+      annotateAll = true;
+      annotate();
+      observer = new MutationObserver((mutations) => {
+        const tables = [];
+        mutations.forEach((mutation) => {
+          mutation.addedNodes?.forEach((node) => {
+            tables.push(...collectTables(node));
+          });
+        });
+        if (tables.length) scheduleAnnotate(tables);
+      });
+      try {
+        observer.observe(document.body, { childList: true, subtree: true });
+      } catch {}
+    };
+
+    const onMediaChange = () => {
+      if (media.matches) startObserver();
+      else stopObserver();
+    };
+
+    startObserver();
+    media.addEventListener?.("change", onMediaChange);
+    media.addListener?.(onMediaChange);
+
+    return () => {
+      media.removeEventListener?.("change", onMediaChange);
+      media.removeListener?.(onMediaChange);
+      stopObserver();
     };
   }, []);
 
