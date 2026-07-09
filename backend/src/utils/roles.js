@@ -1,5 +1,5 @@
 export function normalizeRoleName(value) {
-  return String(value || "").trim().replace(/\s+/g, " ").toLowerCase();
+  return String(value || "").trim().replace(/[_-]+/g, " ").replace(/\s+/g, " ").toLowerCase();
 }
 
 export function isImporterLike(value) {

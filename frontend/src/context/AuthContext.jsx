@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { login as loginAPI, getMe } from "../api/authAPI.js";
+import { canonicalRoleName } from "../utils/roleAccess.js";
 
 const AuthContext = createContext(null);
 
@@ -32,7 +33,7 @@ export function AuthProvider({ children }) {
           return;
         }
         setToken(token);
-        setRole(role);
+        setRole(canonicalRoleName(role));
         setName(name || null);
         setEmail(email || null);
         setPreferredLanguage(preferred_language === "am" ? "am" : "en");
@@ -62,7 +63,7 @@ export function AuthProvider({ children }) {
     storage.setItem("auth", JSON.stringify(res));
 
     setToken(res.token);
-    setRole(res.role);
+    setRole(canonicalRoleName(res.role));
     setName(res.name || null);
     setEmail(res.email || email || null);
     setPreferredLanguage(res.preferred_language === "am" ? "am" : "en");

@@ -32,8 +32,18 @@ export const ROLE_GROUPS = {
   notifications: ["Super Admin", "Admin", "Document Officer", "Inspector", "Clearance Officer", "Risk Analyst", "Port Officer", "Finance Officer"],
 };
 
+export function normalizeRoleName(value) {
+  return String(value || "").trim().replace(/[_-]+/g, " ").replace(/\s+/g, " ").toLowerCase();
+}
+
+export function canonicalRoleName(value) {
+  const normalized = normalizeRoleName(value);
+  return SYSTEM_ROLES.find((role) => normalizeRoleName(role) === normalized) || String(value || "").trim();
+}
+
 export function hasRoleAccess(role, allowed = []) {
   if (!allowed?.length) return true;
-  if (role === "Super Admin") return true;
-  return allowed.includes(role);
+  const normalizedRole = normalizeRoleName(role);
+  if (normalizedRole === "super admin") return true;
+  return allowed.some((item) => normalizeRoleName(item) === normalizedRole);
 }
