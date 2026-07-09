@@ -128,7 +128,7 @@ function GlobalHotkeys() {
           const k = e.key.toLowerCase();
           if (k === 'n') {
             e.preventDefault();
-            navigate(role === "Importer" || role === "Port Officer" ? "/shipments" : role === "Finance Officer" ? "/finance" : "/declarations-admin");
+            navigate(role === "Importer" || role === "Port Officer" ? "/shipments" : role === "Finance Officer" ? "/finance" : role === "Customs Officer" ? "/declarations" : "/declarations-admin");
           }
           if (k === 'f') { e.preventDefault(); navigate('/search'); }
         }

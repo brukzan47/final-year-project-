@@ -26,7 +26,7 @@ function localReply(message, role, pathname) {
   if (/declaration|declare|form|submit/.test(low)) {
     return {
       text: "Create or review declarations from the Declarations area. Importers and officers enter shipment, tariff, value, duty, and supporting document details before moving to payment.",
-      to: role === "Customs Officer" || role === "Admin" || role === "Super Admin" ? "/declarations-admin" : "/declarations",
+      to: role === "Admin" || role === "Super Admin" ? "/declarations-admin" : "/declarations",
       label: "Open Declarations",
     };
   }

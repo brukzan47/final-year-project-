@@ -53,7 +53,8 @@ function getNotificationRoute(item, role) {
     if (role === "Finance Officer") return withParams("/finance", item);
   }
   if (category === "DECLARATION") {
-    if (isAdminRole || role === "Customs Officer") return withParams("/declarations-admin", item);
+    if (isAdminRole) return withParams("/declarations-admin", item);
+    if (role === "Customs Officer") return withParams("/declarations", item);
     if (role === "Importer") return "";
   }
   if (category === "INSPECTION") {
