@@ -8,6 +8,18 @@ function roleMissing(role) {
   return !String(role || "").trim();
 }
 
+function isDatabaseConnectionError(err) {
+  const message = String(err?.message || "");
+  return (
+    err?.code === "57P01" ||
+    err?.code === "ECONNRESET" ||
+    err?.code === "ETIMEDOUT" ||
+    /connection terminated unexpectedly/i.test(message) ||
+    /client has encountered a connection error/i.test(message) ||
+    /server closed the connection unexpectedly/i.test(message)
+  );
+}
+
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
   const MAX_LOGIN_ATTEMPTS = 5;
@@ -80,6 +92,9 @@ export const loginUser = async (req, res) => {
       must_change_password: !!user.must_change_password,
     });
   } catch (err) {
+    if (isDatabaseConnectionError(err)) {
+      return res.status(503).json({ message: "Database connection unavailable. Please retry in a moment." });
+    }
     res.status(500).json({ message: err.message });
   }
 };

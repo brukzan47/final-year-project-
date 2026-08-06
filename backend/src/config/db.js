@@ -13,11 +13,38 @@ const poolConfig = env.db.connectionString
       port: env.db.port,
     };
 
+poolConfig.keepAlive = true;
+poolConfig.connectionTimeoutMillis = Number(env.db.connectionTimeoutMillis || 10_000);
+poolConfig.idleTimeoutMillis = Number(env.db.idleTimeoutMillis || 30_000);
+
 if (env.db.ssl) {
   poolConfig.ssl = { rejectUnauthorized: false };
 }
 
 export const pool = new Pool(poolConfig);
+const rawQuery = pool.query.bind(pool);
+
+function isDroppedConnectionError(err) {
+  const message = String(err?.message || "");
+  return (
+    err?.code === "57P01" ||
+    err?.code === "ECONNRESET" ||
+    err?.code === "ETIMEDOUT" ||
+    /connection terminated unexpectedly/i.test(message) ||
+    /client has encountered a connection error/i.test(message) ||
+    /server closed the connection unexpectedly/i.test(message)
+  );
+}
+
+pool.query = async (...args) => {
+  try {
+    return await rawQuery(...args);
+  } catch (err) {
+    if (!isDroppedConnectionError(err)) throw err;
+    console.warn("PostgreSQL connection dropped during query; retrying once:", err.message);
+    return rawQuery(...args);
+  }
+};
 
 pool.on("connect", () => {
   console.log("Connected to PostgreSQL", {
