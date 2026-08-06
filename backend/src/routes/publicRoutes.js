@@ -1,29 +1,17 @@
 import express from 'express';
 import multer from 'multer';
 import crypto from 'crypto';
-import { pool } from '../config/db.js';
 import { Document } from '../models/Document.js';
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
-router.get('/health', async (_req, res) => {
-  try {
-    await pool.query('SELECT 1');
-    res.json({
-      status: 'online',
-      database: 'online',
-      service: 'Ethiopian Import Customs API',
-      checked_at: new Date().toISOString(),
-    });
-  } catch {
-    res.status(503).json({
-      status: 'offline',
-      database: 'offline',
-      service: 'Ethiopian Import Customs API',
-      checked_at: new Date().toISOString(),
-    });
-  }
+router.get('/health', (_req, res) => {
+  res.json({
+    status: 'online',
+    service: 'Ethiopian Import Customs API',
+    checked_at: new Date().toISOString(),
+  });
 });
 
 router.post('/verify-file', upload.single('file'), async (req, res) => {

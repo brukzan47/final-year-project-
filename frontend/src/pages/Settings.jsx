@@ -5,23 +5,6 @@ import { useToast } from "../context/ToastContext.jsx";
 import { useLanguage } from "../context/LanguageContext.jsx";
 
 const KEY = "app_settings";
-const DEFAULT_LOCAL_API_BASE = "http://localhost:4000/api";
-
-function defaultApiBase() {
-  return import.meta?.env?.VITE_API_BASE || DEFAULT_LOCAL_API_BASE;
-}
-
-function shouldResetDevApiBase(value) {
-  const raw = String(value || "").trim();
-  if (!raw) return false;
-  try {
-    const { hostname, port } = new URL(raw);
-    const isLocalHost = hostname === "localhost" || hostname === "127.0.0.1";
-    return !import.meta?.env?.PROD && (!isLocalHost || port === "5000");
-  } catch {
-    return true;
-  }
-}
 
 export default function Settings() {
   const { setTheme } = useTheme();
@@ -31,7 +14,7 @@ export default function Settings() {
     let density = 'regular';
     let action_toasts = true;
     let theme = "light";
-    let api_base = defaultApiBase();
+    let api_base = (import.meta?.env?.VITE_API_BASE || "http://localhost:5000/api");
     let page_size = 10;
     try { density = localStorage.getItem('density') || 'regular'; } catch {}
     try { action_toasts = (localStorage.getItem('action_toasts') ?? 'true') === 'true'; } catch {}
@@ -40,7 +23,7 @@ export default function Settings() {
       const raw = localStorage.getItem(KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (parsed?.api_base) api_base = shouldResetDevApiBase(parsed.api_base) ? defaultApiBase() : parsed.api_base;
+        if (parsed?.api_base) api_base = parsed.api_base;
         if (parsed?.page_size) page_size = parsed.page_size;
       }
     } catch {}
@@ -58,7 +41,7 @@ export default function Settings() {
           try { parsed.theme = localStorage.getItem('theme') || 'light'; } catch {}
         }
         if (!parsed.api_base) {
-          parsed.api_base = defaultApiBase();
+          parsed.api_base = import.meta?.env?.VITE_API_BASE || "http://localhost:5000/api";
         }
         if (!parsed.page_size) parsed.page_size = 10;
         if (typeof parsed.action_toasts === 'undefined') {
@@ -88,7 +71,7 @@ export default function Settings() {
     <div>
       <h2>{t("settings")}</h2>
       <form onSubmit={submit} style={{ display: "grid", gap: 10, maxWidth: 700 }}>
-        <FormField label={t("apiBase")} name="api_base" value={f.api_base} onChange={on} placeholder={DEFAULT_LOCAL_API_BASE} />
+        <FormField label={t("apiBase")} name="api_base" value={f.api_base} onChange={on} placeholder="http://localhost:5000/api" />
         <label style={{ display: "grid", gap: 6 }}>
           <span style={{ fontSize: 13 }}>{t("theme")}</span>
           <select name="theme" value={f.theme} onChange={on} style={{ padding: 10, border: "1px solid #ccc", borderRadius: 6 }}>
