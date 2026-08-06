@@ -11,6 +11,18 @@ function defaultApiBase() {
   return import.meta?.env?.VITE_API_BASE || DEFAULT_LOCAL_API_BASE;
 }
 
+function shouldResetDevApiBase(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return false;
+  try {
+    const { hostname, port } = new URL(raw);
+    const isLocalHost = hostname === "localhost" || hostname === "127.0.0.1";
+    return !import.meta?.env?.PROD && (!isLocalHost || port === "5000");
+  } catch {
+    return true;
+  }
+}
+
 export default function Settings() {
   const { setTheme } = useTheme();
   const toast = useToast();
@@ -28,7 +40,7 @@ export default function Settings() {
       const raw = localStorage.getItem(KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (parsed?.api_base) api_base = parsed.api_base;
+        if (parsed?.api_base) api_base = shouldResetDevApiBase(parsed.api_base) ? defaultApiBase() : parsed.api_base;
         if (parsed?.page_size) page_size = parsed.page_size;
       }
     } catch {}
