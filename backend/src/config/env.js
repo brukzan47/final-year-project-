@@ -28,6 +28,7 @@ function normalizeDatabaseUrl(raw) {
 const databaseUrl = normalizeDatabaseUrl(process.env.DATABASE_URL);
 const databaseUrlRequiresSsl =
   /[?&]sslmode=require\b/i.test(databaseUrl) ||
+  /\/\/dpg-[a-z0-9-]+(?::\d+)?\//i.test(databaseUrl) ||
   /\.render\.com(?:\/|:|$)/i.test(databaseUrl) ||
   /-postgres\.render\.com(?:\/|:|$)/i.test(databaseUrl);
 
