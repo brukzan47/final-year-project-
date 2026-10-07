@@ -1,8 +1,20 @@
 const PRODUCTION_API_BASE = "https://ethiopian-import-management-system2026.onrender.com/api";
 const DEFAULT_API_BASE =
   import.meta?.env?.VITE_API_BASE ||
-  (import.meta?.env?.PROD ? PRODUCTION_API_BASE : "http://localhost:5000/api");
+  (import.meta?.env?.PROD ? PRODUCTION_API_BASE : "http://localhost:4000/api");
 const SETTINGS_KEY = "app_settings";
+
+function shouldResetDevApiBase(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return false;
+  try {
+    const { hostname, port } = new URL(raw);
+    const isLocalHost = hostname === "localhost" || hostname === "127.0.0.1";
+    return !isLocalHost || port === "5000";
+  } catch {
+    return true;
+  }
+}
 
 export function getApiBase() {
   try {
@@ -10,7 +22,14 @@ export function getApiBase() {
     if (raw) {
       const parsed = JSON.parse(raw);
       const fromSettings = String(parsed?.api_base || "").trim();
-      if (fromSettings) return fromSettings;
+      if (fromSettings) {
+        if (!import.meta?.env?.PROD && shouldResetDevApiBase(fromSettings)) {
+          const migrated = { ...parsed, api_base: DEFAULT_API_BASE };
+          localStorage.setItem(SETTINGS_KEY, JSON.stringify(migrated));
+          return DEFAULT_API_BASE;
+        }
+        return fromSettings;
+      }
     }
   } catch {}
   return DEFAULT_API_BASE;
